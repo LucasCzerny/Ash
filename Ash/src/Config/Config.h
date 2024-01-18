@@ -6,7 +6,7 @@ namespace Ash
 	{
 	public:
 		// App Settings
-		std::string Title = "Application Name";
+		std::string Title = "Ash";
 		uint32_t Major = 0, Minor = 1, Patch = 0;
 		uint32_t Width = 1280, Height = 720;
 		bool Fullscreen = false;

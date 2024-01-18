@@ -12,11 +12,8 @@ namespace SpinningCube
 			true
 		})
 	{
+		// TODO: emplace_back?
 		RenderingLayer renderingLayer;
 		AddLayer(renderingLayer);
-	}
-
-	void SpinningCube::OnResize(uint32_t width, uint32_t height)
-	{
 	}
 }

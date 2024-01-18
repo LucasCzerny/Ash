@@ -36,10 +36,14 @@ namespace Ash::Vulkan
 		Buffer(Buffer&&) = delete;
 		Buffer& operator=(Buffer&&) = delete;
 
-		operator VkBuffer() const { return Handle; }
-
 		void Map(uint32_t offset = 0);
 		void Unmap();
+
+		// TODO: is this good?
+		VkBuffer* Pointer() { return &Handle; }
+		const VkBuffer* Pointer() const { return (const VkBuffer*)&Handle; }
+
+		operator VkBuffer() const { return Handle; }
 
 	private:
 		Context& m_Context = Context::Get();

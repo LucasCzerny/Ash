@@ -144,16 +144,22 @@ namespace Ash::Vulkan
 	{
 		vkGetSwapchainImagesKHR(m_Context.Device, Handle, &ImageCount, nullptr);
 		Images.resize(ImageCount);
-		VkResult result = vkGetSwapchainImagesKHR(m_Context.Device, Handle, &ImageCount, Images.data());
+
+		std::vector<VkImage> imageHandles(ImageCount);
+		imageHandles.reserve(ImageCount);
+
+		for (const Texture& image : Images)
+		{
+			imageHandles.push_back(image);
+		}
+
+		VkResult result = vkGetSwapchainImagesKHR(m_Context.Device, Handle, &ImageCount, imageHandles.data());
 
 		ASSERT(result == VK_SUCCESS, "Failed to get the swap chain images.");
 	}
 
 	void SwapChain::CreateSwapChainImageViews()
 	{
-		// TODO
-		ImageViews.resize(Images.size());
-
 		for (size_t i = 0; i < Images.size(); i++)
 		{
 			VkImageViewCreateInfo viewInfo{};

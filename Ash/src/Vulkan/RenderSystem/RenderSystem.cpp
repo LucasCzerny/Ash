@@ -97,7 +97,7 @@ namespace Ash::Vulkan
 		return imageIndex;
 	}
 
-	void RenderSystem::SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex)
+	VkResult RenderSystem::SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex)
 	{
 		vkWaitForFences(m_Context.Device, 1, &m_InFlightFences[imageIndex], VK_TRUE, UINT64_MAX);
 		vkResetFences(m_Context.Device, 1, &m_InFlightFences[imageIndex]);
@@ -126,10 +126,7 @@ namespace Ash::Vulkan
 		}
 
 		result = vkQueuePresentKHR(m_Context.Device.GraphicsQueue, &presentInfo);
-
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
-		{
-			m_Context.SwapChain.Recreate();
-		}
+		
+		return result;
 	}
 }

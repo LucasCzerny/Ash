@@ -185,7 +185,7 @@ namespace Ash::Vulkan
 		info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		std::array<uint32_t, 2> queueFamilies = { context.Device.GraphicsQueue.Family, context.Device.PresentQueue.Family };
-		info.queueFamilyIndexCount = queueFamilies.size();
+		info.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
 		info.pQueueFamilyIndices = queueFamilies.data();
 
 		info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -296,7 +296,7 @@ namespace Ash::Vulkan
 		info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 
 		std::array<uint32_t, 2> queueFamilies = { context.Device.GraphicsQueue.Family, context.Device.PresentQueue.Family };
-		info.queueFamilyIndexCount = queueFamilies.size();
+		info.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
 		info.pQueueFamilyIndices = queueFamilies.data();
 
 		info.preTransform = context.Device.SwapChainSupport.Capabilities.currentTransform;

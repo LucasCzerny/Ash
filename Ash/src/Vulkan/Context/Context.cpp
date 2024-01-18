@@ -101,7 +101,7 @@ namespace Ash::Vulkan
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 
 		poolInfo.maxSets = 1000;
-		poolInfo.poolSizeCount = poolSizes.size();
+		poolInfo.poolSizeCount = (uint32_t)poolSizes.size();
 		poolInfo.pPoolSizes = poolSizes.data();
 
 		VkResult result = vkCreateDescriptorPool(Device, &poolInfo, nullptr, &DescriptorPool);

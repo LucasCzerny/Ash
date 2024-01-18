@@ -11,6 +11,7 @@ namespace Ash::Vulkan
 	public:
 		RenderSystem(const std::vector<Pipeline>& pipelines)
 			: m_Pipelines(pipelines) {}
+
 		~RenderSystem();
 		
 		// Not copyable or moveable
@@ -40,6 +41,6 @@ namespace Ash::Vulkan
 		void CreateSyncObjects();
 
 		uint32_t AquireNextImage(uint32_t currentFrame);
-		void SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex);
+		VkResult SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex);
 	};
 }

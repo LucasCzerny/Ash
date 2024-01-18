@@ -17,6 +17,6 @@ line above m_Context... consistent?
 
 int main()
 {
-	SpinningCube spinningCube;
+	SpinningCubeApplication spinningCube;
 	spinningCube.Run();
 }

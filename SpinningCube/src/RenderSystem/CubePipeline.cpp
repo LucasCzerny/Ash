@@ -80,7 +80,7 @@ namespace SpinningCube
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 		static VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, &s_Data.VertexBuffer, &offset);
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, s_Data.VertexBuffer.Pointer(), &offset);
 		vkCmdBindIndexBuffer(commandBuffer, s_Data.IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 		vkCmdDrawIndexed(commandBuffer, (uint32_t)(s_Data.IndexBuffer.Size / sizeof(uint32_t)), 1, 0, 0, 0);
@@ -97,7 +97,7 @@ namespace SpinningCube
 		{
 			std::vector<VkDescriptorSetLayout> layouts = {};
 
-			layoutInfo.setLayoutCount = layouts.size();
+			layoutInfo.setLayoutCount = (uint32_t)layouts.size();
 			layoutInfo.pSetLayouts = layouts.data();
 		}
 
@@ -144,7 +144,7 @@ namespace SpinningCube
 		{
 			std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 
-			renderPassInfo.attachmentCount = attachments.size();
+			renderPassInfo.attachmentCount = (uint32_t)attachments.size();
 			renderPassInfo.pAttachments = attachments.data();
 
 			renderPassInfo.dependencyCount = 1;

@@ -35,6 +35,6 @@ namespace Ash::Vulkan
 		Width = width;
 		Height = height;
 
-		LastResizeTime = glfwGetTime();
+		LastResizeTime = (float)glfwGetTime();
 	}
 }
