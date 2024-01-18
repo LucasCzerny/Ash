@@ -1,0 +1,19 @@
+[submodule "vendor/glfw/glfw"]
+	path = vendor/glfw/glfw
+	url = https://github.com/glfw/glfw
+[submodule "vendor/entt/entt"]
+	path = vendor/entt/entt
+	url = https://github.com/skypjack/entt
+[submodule "vendor/glm/glm"]
+	path = vendor/glm/glm
+	url = https://github.com/g-truc/glm
+[submodule "vendor/imgui/imgui"]
+	path = vendor/imgui/imgui
+	url = https://github.com/ocornut/imgui
+	branch = docking
+[submodule "vendor/stb/stb"]
+	path = vendor/stb/stb
+	url = https://github.com/nothings/stb
+[submodule "vendor/tinygltf/tinygltf"]
+	path = vendor/tinygltf/tinygltf
+	url = https://github.com/syoyo/tinygltf
