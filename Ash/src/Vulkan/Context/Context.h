@@ -2,12 +2,12 @@
 
 #include "Config/Config.h"
 
-#include "Vulkan/Device/Device.h"
-#include "Vulkan/Window/Window.h"
-#include "Vulkan/SwapChain/SwapChain.h"
-
 namespace Ash::Vulkan
 {
+	class Window;
+	class Device;
+	class SwapChain;
+
 	class Context
 	{
 	public:
