@@ -44,7 +44,7 @@ namespace Ash::Vulkan
 
 	void Context::Resize(uint32_t width, uint32_t height)
 	{
-		Window.Resize();
+		Window.Resize(width, height);
 		SwapChain.Recreate();
 	}
 

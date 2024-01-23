@@ -8,9 +8,9 @@ namespace Ash
 	ComponentInterface CameraComponent::GetInterface() const
 	{
 		return ComponentInterface{ {
-			{ "FOV",		DataType::FLOAT, &m_FovDegrees },
-			{ "Near Plane",	DataType::FLOAT, &m_Near       },
-			{ "Far Plane",  DataType::FLOAT, &m_Far        }
+			{ "FOV",		DataType::FLOAT, (void*)&m_FovDegrees},
+			{ "Near Plane",	DataType::FLOAT, (void*)&m_Near       },
+			{ "Far Plane",  DataType::FLOAT, (void*)&m_Far        }
 		} };
 	}
 

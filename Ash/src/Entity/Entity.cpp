@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Entity.h"
 
+#include "Components/Component.h"
 #include "Components/TagComponent.h"
 
 namespace Ash

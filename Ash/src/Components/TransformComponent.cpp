@@ -6,9 +6,9 @@ namespace Ash
 	ComponentInterface TransformComponent::GetInterface() const
 	{
 		return ComponentInterface{ {
-			{ "Transform", DataType::FLOAT3, glm::value_ptr(Position) },
-			{ "Rotation",  DataType::FLOAT3, glm::value_ptr(Rotation) },
-			{ "Scale",	   DataType::FLOAT3, glm::value_ptr(Scale)    },
+			{ "Transform", DataType::FLOAT3, (void*)glm::value_ptr(Position) },
+			{ "Rotation",  DataType::FLOAT3, (void*)glm::value_ptr(Rotation) },
+			{ "Scale",	   DataType::FLOAT3, (void*)glm::value_ptr(Scale)    },
 		} };
 	}
 

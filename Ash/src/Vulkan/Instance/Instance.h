@@ -23,7 +23,7 @@ namespace Ash::Vulkan
 		operator VkInstance() const { return Handle; }
 
 	private:
-		Context& m_Context = Context::Get();
+		Context& m_Context;
 
 	private:
 		bool CheckValidationLayerSupport();

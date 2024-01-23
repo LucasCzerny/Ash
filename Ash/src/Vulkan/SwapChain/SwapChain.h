@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Vulkan/Context/Context.h"
 #include "Vulkan/Texture/Texture.h"
 
 namespace Ash::Vulkan
 {
+	class Context;
+
 	class SwapChain
 	{
 	public:

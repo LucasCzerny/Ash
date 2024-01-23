@@ -10,6 +10,7 @@
 namespace Ash::Vulkan
 {
 	Instance::Instance()
+        : m_Context(Context::Get())
 	{
         static Config& config = Config::Get();
 

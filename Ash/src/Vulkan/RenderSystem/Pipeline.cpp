@@ -163,7 +163,7 @@ namespace Ash::Vulkan
 
 		for (uint32_t i = 0; i < m_Context.SwapChain.ImageCount; i++)
 		{
-			std::array<VkImageView, 2> attachments = { m_Context.SwapChain.ImageViews[i], m_Context.SwapChain.DepthImageViews[i] };
+			std::array<VkImageView, 2> attachments = { m_Context.SwapChain.Images[i].View, m_Context.SwapChain.DepthImages[i].View };
 
 			VkFramebufferCreateInfo framebufferInfo = Defaults<VkFramebufferCreateInfo>();
 			{

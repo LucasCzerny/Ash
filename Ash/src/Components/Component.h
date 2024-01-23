@@ -2,12 +2,12 @@
 
 #include "ComponentInterface.h"
 
+#include "Entity/Entity.h"
+
 #include "Vulkan/Context/Context.h"
 
 namespace Ash
 {
-	class Entity;
-
 	class Component
 	{
 	public:
@@ -17,7 +17,7 @@ namespace Ash
 		virtual void OnUpdate(float deltaTime) {}
 
 		virtual std::string GetName() const { return "Unnamed Component"; }
-		virtual ComponentInterface GetInterface() const { return {}; }
+		virtual ComponentInterface GetInterface() const { return ComponentInterface(); }
 
 	protected:
 		Entity m_Entity;

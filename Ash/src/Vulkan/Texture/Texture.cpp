@@ -10,6 +10,9 @@
 
 namespace Ash::Vulkan
 {
+    Texture::Texture()
+        : m_Context(Context::Get()) {}
+
     Texture::Texture(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties)
         : m_Context(Context::Get())
     {
@@ -28,7 +31,7 @@ namespace Ash::Vulkan
             viewInfo.format = Format;
         }
 
-        VkResult result = vkCreateImageView(m_Context.Device, &viewInfo, nullptr, &View);
+        result = vkCreateImageView(m_Context.Device, &viewInfo, nullptr, &View);
 
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(m_Context.Device, Image, &memRequirements);

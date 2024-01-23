@@ -4,9 +4,9 @@
 namespace Ash
 {
 	ComponentInterface TagComponent::GetInterface() const
-	 {
+	{
 		return ComponentInterface{ {
-			{ "Tag", DataType::STRING, &m_Tag }
+			{ "Tag", DataType::STRING, (void*)&m_Tag}
 		} };
 	}
 }

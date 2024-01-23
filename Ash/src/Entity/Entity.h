@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Scene/Scene.h"
-#include "Components/Component.h"
 
 namespace Ash
 {
+	class Component;
+
 	class Entity
 	{
 	public:

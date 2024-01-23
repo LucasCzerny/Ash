@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Vulkan/Context/Context.h"
 #include "Config/Config.h"
 
 namespace Ash::Vulkan
 {
+	class Context;
+
 	class Window
 	{
 	public:

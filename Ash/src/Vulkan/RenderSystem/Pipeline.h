@@ -20,10 +20,10 @@ namespace Ash::Vulkan
 		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> recordFunction);
 		
 		// Not copyable or moveable
-		Pipeline(const Pipeline&) = delete;
-		void operator=(const Pipeline&) = delete;
-		Pipeline(Pipeline&&) = delete;
-		Pipeline& operator=(Pipeline&&) = delete;
+		// Pipeline(const Pipeline&) = delete;
+		// void operator=(const Pipeline&) = delete;
+		// Pipeline(Pipeline&&) noexcept {}
+		// Pipeline& operator=(Pipeline&&) noexcept {}
 
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame) const;
 

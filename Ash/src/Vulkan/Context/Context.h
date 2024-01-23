@@ -2,16 +2,17 @@
 
 #include "Config/Config.h"
 
+#include "Vulkan/Device/Device.h"
+#include "Vulkan/Instance/Instance.h"
+#include "Vulkan/SwapChain/SwapChain.h"
+#include "Vulkan/Window/Window.h"
+
 namespace Ash::Vulkan
 {
-	class Window;
-	class Device;
-	class SwapChain;
-
 	class Context
 	{
 	public:
-		VkInstance Instance;
+		Vulkan::Instance Instance;
 		Vulkan::Window Window;
 
 		Vulkan::Device Device;

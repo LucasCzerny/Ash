@@ -3,10 +3,10 @@
 #include "Queue.h"
 #include "SwapChainSupportDetails.h"
 
-#include "Vulkan/Context/Context.h"
-
 namespace Ash::Vulkan
 {
+	class Context;
+
 	class Device
 	{
 	public:

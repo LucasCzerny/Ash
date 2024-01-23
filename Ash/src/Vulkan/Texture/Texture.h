@@ -19,17 +19,17 @@ namespace Ash::Vulkan
 		VkFormat Format = VK_FORMAT_UNDEFINED;
 
 	public:
-		Texture() = default;
+		Texture();
 		Texture(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb = false);
 
 		~Texture();
 
 		// Not copyable or moveable
-		Texture(const Texture&) = delete;
-		void operator=(const Texture&) = delete;
-		Texture(Texture&&) = delete;
-		Texture& operator=(Texture&&) = delete;
+		// Texture(const Texture&) = delete;
+		// void operator=(const Texture&) = delete;
+		// Texture(Texture&&) = delete;
+		// Texture& operator=(Texture&&) = delete;
 
 		void Transition(VkImageLayout from, VkImageLayout to, VkCommandBuffer commandBuffer = VK_NULL_HANDLE);
 		void CopyFromBuffer(const Buffer& buffer);

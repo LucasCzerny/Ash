@@ -19,6 +19,8 @@ namespace SpinningCube
 		static CubePipelineData s_Data;
 
 	public:
+		static void Init();
+
 		static Vulkan::PipelineConfig CreatePipelineConfig();
 		static void Record(const Vulkan::Pipeline& pipeline, VkCommandBuffer commandBuffer, uint32_t imageIndex);
 

@@ -7,10 +7,13 @@
 
 namespace SpinningCube
 {
-	CubePipelineData::CubePipelineData()
-		: VertexBuffer(Vulkan::Utility::CreateCubeVertexBuffer()),
-		  IndexBuffer(Vulkan::Utility::CreateCubeIndexBuffer())
-	{}
+	CubePipelineData CubePipeline::s_Data;
+
+	void CubePipeline::Init()
+	{
+		s_Data.VertexBuffer = Vulkan::Utility::CreateCubeVertexBuffer();
+		s_Data.IndexBuffer = Vulkan::Utility::CreateCubeIndexBuffer();
+	}
 
 	Vulkan::PipelineConfig CubePipeline::CreatePipelineConfig()
 	{

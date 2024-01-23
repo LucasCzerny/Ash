@@ -3,9 +3,18 @@
 
 #include "Core/Assert.h"
 
+#include "Vulkan/Context/Context.h"
+
 namespace Ash::Vulkan
 {
+	Buffer::Buffer()
+		: m_Context(Context::Get()) {}
+
+	Buffer::Buffer(VkBuffer handle, VkDeviceMemory memory, uint32_t size, void* mappedMemory)
+		: m_Context(Context::Get()), Handle(handle), Memory(memory), Size(size), MappedMemory(mappedMemory) {}
+
 	Buffer::Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
+		: m_Context(Context::Get())
 	{
 		VkDeviceSize alignmentSize = GetAlignment(instanceSize, minOffsetAlignment);
 		Size = (uint32_t)alignmentSize * instanceCount;
@@ -37,14 +46,19 @@ namespace Ash::Vulkan
 	Buffer::Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, void* data, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
 		: Buffer(instanceSize, instanceCount, usageFlags, memoryPropertyFlags, minOffsetAlignment)
 	{
-		Map();
-		memcpy(MappedMemory, data, Size);
-		Unmap();
+		CopyData(data);
 	}
 
 	Buffer::~Buffer()
 	{
 		vkDestroyBuffer(m_Context.Device, Handle, nullptr);
+		Unmap();
+	}
+
+	void Buffer::CopyData(void* data)
+	{
+		Map();
+		memcpy(MappedMemory, data, Size);
 		Unmap();
 	}
 
