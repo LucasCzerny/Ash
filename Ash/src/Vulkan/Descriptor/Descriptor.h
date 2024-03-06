@@ -13,10 +13,14 @@ namespace Ash::Vulkan
 		Descriptor(const VkDescriptorSetLayoutCreateInfo& layoutInfo);
 
 		// Not copyable or moveable
-		Descriptor(const Descriptor&) = delete;
-		void operator=(const Descriptor&) = delete;
-		Descriptor(Descriptor&&) = delete;
-		Descriptor& operator=(Descriptor&&) = delete;
+		// Descriptor(const Descriptor&) = delete;
+		// void operator=(const Descriptor&) = delete;
+		// Descriptor(Descriptor&&) = delete;
+		// Descriptor& operator=(Descriptor&&) = delete;
+
+		void Bind(VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint, uint32_t firstSet, VkPipelineLayout layout);
+
+		operator VkDescriptorSet() const { return Set; }
 	};
 
 	// Multiple descriptors with the same layout

@@ -1,24 +1,24 @@
 #pragma once
 
 #include "Vulkan/Texture/Texture.h"
+#include "Vulkan/Texture/SwapChainTexture.h"
 
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class SwapChain
 	{
 	public:
 		VkSwapchainKHR Handle = VK_NULL_HANDLE;
 		
-		VkExtent2D Extent;
+		VkExtent2D Extent2D;
+		VkExtent3D Extent3D;
 		VkPresentModeKHR PresentMode;
 		VkSurfaceFormatKHR SurfaceFormat;
 		uint32_t ImageCount;
 		VkFormat DepthFormat;
 
-		std::vector<Texture> Images;
-		std::vector<Texture> DepthImages;
+		std::deque<SwapChainTexture> Images;
+		std::deque<Texture> DepthImages;
 		std::vector<VkFramebuffer> Framebuffers;
 
 	public:
@@ -37,8 +37,6 @@ namespace Ash::Vulkan
 	private:
 		VkSwapchainKHR m_OldSwapChain = VK_NULL_HANDLE;
 
-		Context& m_Context;
-
 	private:
 		void ChooseSwapChainSpecification();
 		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities, VkExtent2D default);
@@ -48,7 +46,6 @@ namespace Ash::Vulkan
 		void CreateSwapChain();
 
 		void CreateSwapChainImages();
-		void CreateSwapChainImageViews();
 		void CreateDepthResources();
 	};
 }

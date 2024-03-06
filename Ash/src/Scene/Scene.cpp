@@ -3,6 +3,7 @@
 
 #include "Entity/Entity.h"
 
+#include "Components/CameraComponent.h"
 #include "Components/TagComponent.h"
 #include "Components/TransformComponent.h"
 
@@ -37,6 +38,30 @@ namespace Ash
 
 	std::vector<Entity> Scene::GetAllEntities()
 	{
-		return std::vector<Entity>();
+		return GetEntitiesWithComponents<TagComponent>();
+	}
+
+	// TODO: add lights and maybe use transform component in getcameraentiteis
+	std::vector<Entity> Scene::GetRenderableEntities()
+	{
+		return GetAllEntities();
+		// return GetEntitiesWithComponents<ModelComponent>();
+	}
+
+	std::vector<Entity> Scene::GetCameraEntities()
+	{
+		return GetEntitiesWithComponents<CameraComponent>();
+	}
+
+	std::vector<Entity> Scene::GetDirectionalLightEntities()
+	{
+		return GetAllEntities();
+		// return GetEntitiesWithComponents<DirectionalLightComponent>();
+	}
+
+	std::vector<Entity> Scene::GetPointLightEntities()
+	{
+		return GetAllEntities();
+		// return GetEntitiesWithComponents<PointLightComponent>();
 	}
 }

@@ -11,8 +11,7 @@ namespace Ash
 	class Component
 	{
 	public:
-		Component(const Entity& entity)
-			: m_Entity(entity) {}
+		Component(const Entity& entity);
 
 		virtual void OnUpdate(float deltaTime) {}
 
@@ -21,8 +20,6 @@ namespace Ash
 
 	protected:
 		Entity m_Entity;
-
-		Vulkan::Context& m_Context = Vulkan::Context::Get();
 
 	protected:
 		template <typename ComponentType>

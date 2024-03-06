@@ -2,8 +2,6 @@
 
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class Instance
 	{
 	public:
@@ -21,9 +19,6 @@ namespace Ash::Vulkan
 		Instance& operator=(Instance&&) = delete;
 
 		operator VkInstance() const { return Handle; }
-
-	private:
-		Context& m_Context;
 
 	private:
 		bool CheckValidationLayerSupport();

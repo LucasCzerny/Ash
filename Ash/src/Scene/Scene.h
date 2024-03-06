@@ -29,3 +29,5 @@ namespace Ash
 		entt::registry m_Registry;
 	};
 }
+
+#include "Scene.inl"

@@ -5,33 +5,34 @@
 #include "Vulkan/Context/Context.h"
 #include "Vulkan/Utility/Shapes/Cube.h"
 
-namespace SpinningCube
+namespace SpinningCube::CubePipeline
 {
-	CubePipelineData CubePipeline::s_Data;
-
-	void CubePipeline::Init()
+	Data& Data::Get()
 	{
-		s_Data.VertexBuffer = Vulkan::Utility::CreateCubeVertexBuffer();
-		s_Data.IndexBuffer = Vulkan::Utility::CreateCubeIndexBuffer();
+		static Data data;
+		return data;
 	}
 
-	Vulkan::PipelineConfig CubePipeline::CreatePipelineConfig()
+	Vulkan::PipelineConfig CreateConfig()
 	{
 		// TODO: Maybe also use Vulkan::Defaults Syntax
-		Vulkan::PipelineConfig config{};
+		Vulkan::PipelineConfig config = Vulkan::PipelineConfig::Default();
 
-        config.PipelineLayoutInfo = CreateCubePipelineLayoutInfo();
-		config.RenderPassInfo = CreateCubePipelineRenderPassInfo();
+		CreateDescriptor();
 
-		config.VertexShaderPath = "";
-		config.FragmentShaderPath = "";
+        config.PipelineLayoutInfo = CreateLayoutInfo();
+		config.RenderPassInfo = CreateRenderPassInfo();
+
+		config.VertexShaderPath = "Resources/Shaders/compiled/SpinningCube.vert.spv";
+		config.FragmentShaderPath = "Resources/Shaders/compiled/SpinningCube.frag.spv";
 
 		return config;
 	}
 
-	void CubePipeline::Record(const Vulkan::Pipeline& pipeline, VkCommandBuffer commandBuffer, uint32_t imageIndex)
+	void Record(const Vulkan::Pipeline& pipeline, VkCommandBuffer commandBuffer, uint32_t imageIndex, Scene& scene)
 	{
 		static Vulkan::Context& context = Vulkan::Context::Get();
+		static Data& data = Data::Get();
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -39,7 +40,7 @@ namespace SpinningCube
 		VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
 		ASSERT(result == VK_SUCCESS, "Failed to start recording a command buffer.");
 
-		VkExtent2D swapChainExtent = context.SwapChain.Extent;
+		VkExtent2D swapChainExtent = context.SwapChain.Extent2D;
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -82,11 +83,19 @@ namespace SpinningCube
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-		static VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, s_Data.VertexBuffer.Pointer(), &offset);
-		vkCmdBindIndexBuffer(commandBuffer, s_Data.IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		data.CameraDescriptor.Bind(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, 0, pipeline.Layout);
 
-		vkCmdDrawIndexed(commandBuffer, (uint32_t)(s_Data.IndexBuffer.Size / sizeof(uint32_t)), 1, 0, 0, 0);
+		CameraComponent& camera = scene.GetCameraEntities()[0].GetComponent<CameraComponent>();
+		CameraUboStruct cameraData = {
+			camera.CalculateProjectionMatrix(),
+			camera.CalculateViewMatrix()
+		};
+
+		static VkDeviceSize offset = 0;
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, data.VertexBuffer.Pointer(), &offset);
+		vkCmdBindIndexBuffer(commandBuffer, data.IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+		vkCmdDrawIndexed(commandBuffer, (uint32_t)(data.IndexBuffer.Size / sizeof(uint32_t)), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(commandBuffer);
 
@@ -94,36 +103,66 @@ namespace SpinningCube
 		ASSERT(result == VK_SUCCESS, "Failed to record a command buffer.");
 	}
 
-	VkPipelineLayoutCreateInfo CubePipeline::CreateCubePipelineLayoutInfo()
+	void CreateDescriptor()
 	{
+		VkDescriptorSetLayoutBinding binding = Vulkan::Defaults<VkDescriptorSetLayoutBinding>();
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo = Vulkan::Defaults<VkDescriptorSetLayoutCreateInfo>();
+		{
+			binding.binding = 0;
+			binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+			layoutInfo.bindingCount = 1;
+			layoutInfo.pBindings = &binding;
+		}
+
+		Data::Get().CameraDescriptor = { layoutInfo };
+	}
+
+	void CreateBuffer()
+	{
+		Vulkan::Buffer& buffer = Data::Get().CameraUbo;
+
+		buffer = {
+			sizeof(CameraUboStruct), 1,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		};
+
+		buffer.WriteToDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Data::Get().CameraDescriptor);
+	}
+
+	VkPipelineLayoutCreateInfo CreateLayoutInfo()
+	{
+		std::vector<VkDescriptorSetLayout> layouts = { Data::Get().CameraDescriptor.Layout };
+
         VkPipelineLayoutCreateInfo layoutInfo = Vulkan::Defaults<VkPipelineLayoutCreateInfo>();
 		{
-			std::vector<VkDescriptorSetLayout> layouts = {};
-
 			layoutInfo.setLayoutCount = (uint32_t)layouts.size();
-			layoutInfo.pSetLayouts = layouts.data();
+			layoutInfo.pSetLayouts = &Data::Get().CameraDescriptor.Layout;
 		}
 
 		return layoutInfo;
 	}
 
-	VkRenderPassCreateInfo CubePipeline::CreateCubePipelineRenderPassInfo()
+	// TODO: static static static static static static static static static static static static static static STATIC STATIC STATIC STATIC STATIC STAAAAAAATIIIIIIIIIIIIIIIIIC
+	VkRenderPassCreateInfo& CreateRenderPassInfo()
 	{
 		static Vulkan::Context& context = Vulkan::Context::Get();
 
-		VkAttachmentDescription colorAttachment = Vulkan::Defaults<VkAttachmentDescription>();
-		VkAttachmentReference colorReference = Vulkan::Defaults<VkAttachmentReference>();
+		static VkAttachmentDescription colorAttachment = Vulkan::Defaults<VkAttachmentDescription>();
+		static VkAttachmentReference colorReference = Vulkan::Defaults<VkAttachmentReference>();
 		colorReference.attachment = 0;
 
-		VkAttachmentDescription depthAttachment = Vulkan::Defaults<VkAttachmentDescription>();;
+		static VkAttachmentDescription depthAttachment = Vulkan::Defaults<VkAttachmentDescription>();
 		depthAttachment.format = context.SwapChain.DepthFormat;
 		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentReference depthReference = Vulkan::Defaults<VkAttachmentReference>();
+		static VkAttachmentReference depthReference = Vulkan::Defaults<VkAttachmentReference>();
 		depthReference.attachment = 1;
 		depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpassDescription = Vulkan::Defaults<VkSubpassDescription>();
+		static VkSubpassDescription subpassDescription = Vulkan::Defaults<VkSubpassDescription>();
 		{
 			subpassDescription.colorAttachmentCount = 1;
 			subpassDescription.pColorAttachments = &colorReference;
@@ -131,7 +170,7 @@ namespace SpinningCube
 			subpassDescription.pDepthStencilAttachment = &depthReference;
 		}
 
-		VkSubpassDependency subpassDependency = Vulkan::Defaults<VkSubpassDependency>();
+		static VkSubpassDependency subpassDependency = Vulkan::Defaults<VkSubpassDependency>();
 		{
 			subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 			subpassDependency.dstSubpass = 0;
@@ -143,9 +182,9 @@ namespace SpinningCube
 			subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		}
 
-		VkRenderPassCreateInfo renderPassInfo = Vulkan::Defaults<VkRenderPassCreateInfo>();
+		static VkRenderPassCreateInfo renderPassInfo = Vulkan::Defaults<VkRenderPassCreateInfo>();
 		{
-			std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+			static std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 
 			renderPassInfo.attachmentCount = (uint32_t)attachments.size();
 			renderPassInfo.pAttachments = attachments.data();

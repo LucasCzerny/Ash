@@ -8,7 +8,7 @@ namespace Ash
 	ComponentInterface CameraComponent::GetInterface() const
 	{
 		return ComponentInterface{ {
-			{ "FOV",		DataType::FLOAT, (void*)&m_FovDegrees},
+			{ "FOV",		DataType::FLOAT, (void*)&m_FovDegrees },
 			{ "Near Plane",	DataType::FLOAT, (void*)&m_Near       },
 			{ "Far Plane",  DataType::FLOAT, (void*)&m_Far        }
 		} };
@@ -33,7 +33,9 @@ namespace Ash
 
 	glm::mat4 CameraComponent::CalculateProjectionMatrix()
 	{
-		glm::vec2 screenSize = m_Context.Window.GetSize();
+		static Vulkan::Context& context = Vulkan::Context::Get();
+
+		glm::vec2 screenSize = context.Window.GetSize();
 
 		if (screenSize.x == 0)
 		{

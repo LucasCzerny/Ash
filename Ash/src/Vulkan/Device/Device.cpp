@@ -7,7 +7,6 @@
 namespace Ash::Vulkan
 {
 	Device::Device()
-        : m_Context(Context::Get())
 	{
         ChoosePhysicalDevice();
         ChooseLogicalDevice();
@@ -16,11 +15,13 @@ namespace Ash::Vulkan
 
     void Device::ChoosePhysicalDevice()
     {
+		static Context& context = Context::Get();
+
         uint32_t physicalDeviceCount;
-        vkEnumeratePhysicalDevices(m_Context.Instance, &physicalDeviceCount, nullptr);
+        vkEnumeratePhysicalDevices(context.Instance, &physicalDeviceCount, nullptr);
 
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-        vkEnumeratePhysicalDevices(m_Context.Instance, &physicalDeviceCount, physicalDevices.data());
+        vkEnumeratePhysicalDevices(context.Instance, &physicalDeviceCount, physicalDevices.data());
 
         Physical = VK_NULL_HANDLE;
 
@@ -42,15 +43,17 @@ namespace Ash::Vulkan
         ASSERT(Physical != VK_NULL_HANDLE, "Couldn't find a suitable GPU.");
     }
 
-    std::array<uint32_t, 2> Device::GetQueueFamilies(VkPhysicalDevice physicalDevice)
+    std::array<uint32_t, 2> Device::GetQueueFamilies(VkPhysicalDevice device)
     {
+		static Context& context = Context::Get();
+
         std::array<uint32_t, 2> queueFamilies = { UINT32_MAX, UINT32_MAX };
 
         uint32_t queueFamilyCount;
-        vkGetPhysicalDeviceQueueFamilyProperties(Physical, &queueFamilyCount, nullptr);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> familyProperties(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(Physical, &queueFamilyCount, familyProperties.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, familyProperties.data());
 
         for (int i = 0; i < familyProperties.size(); i++)
         {
@@ -69,7 +72,7 @@ namespace Ash::Vulkan
             }
 
             VkBool32 presentSupport = VK_FALSE;
-            vkGetPhysicalDeviceSurfaceSupportKHR(Physical, i, m_Context.Window.Surface, &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, context.Window.Surface, &presentSupport);
 
             if (presentSupport)
             {
@@ -87,26 +90,28 @@ namespace Ash::Vulkan
 
     DeviceSwapChainSupport Device::QuerySwapChainSupport(VkPhysicalDevice device)
     {
+		static Context& context = Context::Get();
+
         DeviceSwapChainSupport support{};
 
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Context.Window.Surface, &support.Capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, context.Window.Surface, &support.Capabilities);
 
         uint32_t surfaceFormatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Context.Window.Surface, &surfaceFormatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, context.Window.Surface, &surfaceFormatCount, nullptr);
 
         if (surfaceFormatCount != 0)
         {
             support.SurfaceFormats.resize(surfaceFormatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Context.Window.Surface, &surfaceFormatCount, support.SurfaceFormats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, context.Window.Surface, &surfaceFormatCount, support.SurfaceFormats.data());
         }
 
         uint32_t presentModesCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Context.Window.Surface, &presentModesCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, context.Window.Surface, &presentModesCount, nullptr);
 
         if (presentModesCount != 0)
         {
             support.PresentModes.resize(presentModesCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Context.Window.Surface, &presentModesCount, support.PresentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, context.Window.Surface, &presentModesCount, support.PresentModes.data());
         }
 
         return support;
@@ -154,25 +159,29 @@ namespace Ash::Vulkan
         for (uint32_t queueFamilyIndex : uniqueQueueFamilies)
         {
             VkDeviceQueueCreateInfo queueCreateInfo = Defaults<VkDeviceQueueCreateInfo>();
-            queueCreateInfo.queueCount = 1;
-            queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+            {
+				queueCreateInfo.queueCount = 1;
+				queueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+            }
 
             queueCreateInfos.push_back(queueCreateInfo);
         }
 
         VkDeviceCreateInfo deviceInfo = Defaults<VkDeviceCreateInfo>();
-        deviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos.size();
-        deviceInfo.pQueueCreateInfos = queueCreateInfos.data();
+        {
+			deviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos.size();
+			deviceInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-        VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
-        indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+			VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
+			indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
 
-        // indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
-        // indexingFeatures.runtimeDescriptorArray = VK_TRUE;
-        // indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
-        indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
+			// indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+			// indexingFeatures.runtimeDescriptorArray = VK_TRUE;
+			// indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE;
+			indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;
 
-        deviceInfo.pNext = &indexingFeatures;
+			deviceInfo.pNext = &indexingFeatures;
+        }
 
         VkResult result = vkCreateDevice(Physical, &deviceInfo, nullptr, &Logical);
         ASSERT(result == VK_SUCCESS, "Failed to create the logical device.");

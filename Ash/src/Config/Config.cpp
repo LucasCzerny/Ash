@@ -9,7 +9,8 @@ namespace Ash
 {
 	Config& Config::Get()
 	{
-		return Application::GetActive().GetConfig();
+        static Config config;
+        return config;
 	}
 
 	VkDebugUtilsMessengerCreateInfoEXT Config::GetDebugMessengerInfo()

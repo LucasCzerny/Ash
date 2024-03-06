@@ -13,14 +13,14 @@ namespace SpinningCube
 	public:
 		RenderingLayer();
 
-		void OnUpdate() override;
+		void Update(float deltaTime) override;
+		void Draw() override;
 		bool OnEvent(Event& event) override;
 
 	private:
 		EventType m_EventMask = EventType::KeyEvents;
 
+		Scene m_Scene;
 		Vulkan::RenderSystem m_RenderSystem;
-
-		Vulkan::Context& m_Context = Vulkan::Context::Get();
 	};
 }

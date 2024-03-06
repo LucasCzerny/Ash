@@ -4,7 +4,7 @@
 
 namespace Ash::Vulkan
 {
-	class Context;
+	static VkImageViewCreateInfo DefaultImageView();
 
 	struct Texture
 	{
@@ -14,14 +14,15 @@ namespace Ash::Vulkan
 		VkDeviceMemory Memory = VK_NULL_HANDLE;
 
 		uint32_t Width = 0, Height = 0;
-		VkExtent3D Extent = { 0, 0, 0 };
+		VkExtent2D Extent2D = { 0, 0 };
+		VkExtent3D Extent3D = { 0, 0, 0 };
 
 		VkFormat Format = VK_FORMAT_UNDEFINED;
 
 	public:
-		Texture();
-		Texture(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb = false);
+		Texture() = default;
+		Texture(VkImageCreateInfo imageInfo, VkImageViewCreateInfo viewInfo = DefaultImageView(), VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb = false, VkImageViewCreateInfo viewInfo = DefaultImageView());
 
 		~Texture();
 
@@ -36,11 +37,6 @@ namespace Ash::Vulkan
 
 		operator VkImage() const { return Image; }
 
-	private:
-		VkMemoryAllocateFlagBits m_MemoryFlags;
-
-		Context& m_Context;
-		
 	private:
 		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	};

@@ -25,6 +25,11 @@ namespace Ash::Vulkan
 		ASSERT(result == VK_SUCCESS, "Failed to allocate descriptor sets.");
 	}
 
+	void Descriptor::Bind(VkCommandBuffer commandBuffer, VkPipelineBindPoint bindPoint, uint32_t firstSet, VkPipelineLayout layout)
+	{
+		vkCmdBindDescriptorSets(commandBuffer, bindPoint, layout, firstSet, 1, &Set, 0, nullptr);
+	}
+
 	DescriptorGroup::DescriptorGroup(const VkDescriptorSetLayoutCreateInfo& layoutInfo, uint32_t count)
 	{
 		static Context& context = Context::Get();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Events/Event.h"
+#include "Scene/Scene.h"
 
 namespace Ash
 {
@@ -12,7 +13,8 @@ namespace Ash
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
 
-		virtual void OnUpdate() {}
+		virtual void Update(float deltaTime) {}
+		virtual void Draw() {}
 		virtual bool OnEvent(Event& event) { return false; }
 
 		bool operator==(Layer& other) const;

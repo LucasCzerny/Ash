@@ -10,9 +10,11 @@
 namespace Ash::Vulkan
 {
 	Instance::Instance()
-        : m_Context(Context::Get())
 	{
-        static Config& config = Config::Get();
+		static Config& config = Config::Get();
+    
+        // TODO: when the imposter is sus
+		ASSERT(glfwInit(), "Failed to initialize GLFW.");
 
         // TODO: Move this to the config class ???
         ASSERT(config.EnableValidationLayers <= CheckValidationLayerSupport(), "Validation layers requested, but not available.");
@@ -30,7 +32,13 @@ namespace Ash::Vulkan
         createInfo.pApplicationInfo = &appInfo;
         createInfo.flags = NULL;
 
+        uint32_t glfwExtensionCount;
+        const char** glfwExtensionsArray = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char*> glfwExtensions(glfwExtensionsArray, glfwExtensionsArray + glfwExtensionCount);
         std::vector<const char*> extensions = config.InstanceExtensions;
+        extensions.reserve(extensions.size() + glfwExtensions.size());
+        extensions.insert(extensions.end(), glfwExtensions.begin(), glfwExtensions.end());
 
         createInfo.enabledExtensionCount = (uint32_t)extensions.size();
         createInfo.ppEnabledExtensionNames = extensions.data();
@@ -57,7 +65,9 @@ namespace Ash::Vulkan
 
     bool Instance::CheckValidationLayerSupport()
     {
-        std::vector<const char*> validationLayers = Config::Get().ValidationLayers;
+        static Config& config = Config::Get();
+
+        std::vector<const char*> validationLayers = config.ValidationLayers;
 
         uint32_t propertyCount;
         vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);

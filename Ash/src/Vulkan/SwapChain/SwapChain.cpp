@@ -8,44 +8,47 @@
 namespace Ash::Vulkan
 {
 	SwapChain::SwapChain()
-        : m_Context(Context::Get())
 	{	
 		Recreate();
 	}
 
 	void SwapChain::Recreate()
 	{
+		static Context& context = Context::Get();
+
 		m_OldSwapChain = Handle;
 
-		vkDeviceWaitIdle(m_Context.Device);
+		vkDeviceWaitIdle(context.Device);
 
 		ChooseSwapChainSpecification();
 
 		CreateSwapChain();
 
 		CreateSwapChainImages();
-		CreateSwapChainImageViews();
 		CreateDepthResources();
 	}
 
 	void SwapChain::ChooseSwapChainSpecification()
 	{
-		VkExtent2D windowExtent = m_Context.Window.GetExtent2D();
+		static Context& context = Context::Get();
+
+		VkExtent2D windowExtent = context.Window.GetExtent2D();
 
 		while (windowExtent.width == 0 || windowExtent.height == 0)
 		{
-			windowExtent = m_Context.Window.GetExtent2D();
+			windowExtent = context.Window.GetExtent2D();
 			glfwWaitEvents();
 		}
 
-		DeviceSwapChainSupport supportDetails = m_Context.Device.SwapChainSupport;
+		DeviceSwapChainSupport supportDetails = context.Device.SwapChainSupport;
 
-		Extent = ChooseExtent(supportDetails.Capabilities, windowExtent);
+		Extent2D = ChooseExtent(supportDetails.Capabilities, windowExtent);
+		Extent3D = { Extent2D.width, Extent3D.height, 1 };
 		PresentMode = ChoosePresentMode(supportDetails.PresentModes);
 		SurfaceFormat = ChooseSwapChainSurfaceFormat(supportDetails.SurfaceFormats);
 
-		uint32_t imageCount = m_Context.Device.SwapChainSupport.Capabilities.minImageCount + 1;
-		uint32_t maxImageCount = m_Context.Device.SwapChainSupport.Capabilities.maxImageCount;
+		uint32_t imageCount = context.Device.SwapChainSupport.Capabilities.minImageCount + 1;
+		uint32_t maxImageCount = context.Device.SwapChainSupport.Capabilities.maxImageCount;
 
 		if (maxImageCount > 0 && imageCount > maxImageCount)
 		{
@@ -61,7 +64,7 @@ namespace Ash::Vulkan
 		for (VkFormat format : depthFormats)
 		{
 			VkFormatProperties formatProperties;
-			vkGetPhysicalDeviceFormatProperties(m_Context.Device, format, &formatProperties);
+			vkGetPhysicalDeviceFormatProperties(context.Device, format, &formatProperties);
 
 			if (formatProperties.optimalTilingFeatures & formatFeatures)
 			{
@@ -115,7 +118,8 @@ namespace Ash::Vulkan
 
 	void SwapChain::CreateSwapChain()
 	{
-		static Device& device = m_Context.Device;
+		static Context& context = Context::Get();
+		static Device& device = context.Device;
 
 		VkSwapchainCreateInfoKHR createInfo = Defaults<VkSwapchainCreateInfoKHR>();
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -137,68 +141,41 @@ namespace Ash::Vulkan
 
 		createInfo.oldSwapchain = m_OldSwapChain;
 
-		VkResult result = vkCreateSwapchainKHR(m_Context.Device, &createInfo, nullptr, &Handle);
+		VkResult result = vkCreateSwapchainKHR(context.Device, &createInfo, nullptr, &Handle);
 	}
 
 	void SwapChain::CreateSwapChainImages()
 	{
-		vkGetSwapchainImagesKHR(m_Context.Device, Handle, &ImageCount, nullptr);
-		Images.resize(ImageCount);
+		static Context& context = Context::Get();
+
+		vkGetSwapchainImagesKHR(context.Device, Handle, &ImageCount, nullptr);
 
 		std::vector<VkImage> imageHandles(ImageCount);
-		imageHandles.reserve(ImageCount);
-
-		for (const Texture& image : Images)
-		{
-			imageHandles.push_back(image);
-		}
-
-		VkResult result = vkGetSwapchainImagesKHR(m_Context.Device, Handle, &ImageCount, imageHandles.data());
+		VkResult result = vkGetSwapchainImagesKHR(context.Device, Handle, &ImageCount, imageHandles.data());
 
 		ASSERT(result == VK_SUCCESS, "Failed to get the swap chain images.");
-	}
 
-	void SwapChain::CreateSwapChainImageViews()
-	{
-		for (size_t i = 0; i < Images.size(); i++)
+		for (uint32_t i = 0; i < ImageCount; i++)
 		{
-			VkImageViewCreateInfo viewInfo{};
-			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-
-			viewInfo.image = Images[i];
-			viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			viewInfo.format = SurfaceFormat.format;
-
-			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			viewInfo.subresourceRange.baseMipLevel = 0;
-			viewInfo.subresourceRange.levelCount = 1;
-			viewInfo.subresourceRange.baseArrayLayer = 0;
-			viewInfo.subresourceRange.layerCount = 1;
-
-			VkResult result = vkCreateImageView(m_Context.Device, &viewInfo, nullptr, &Images[i].View);
-			ASSERT(result == VK_SUCCESS, "Failed to create a swap chain image view.");
+			Images.emplace_back(imageHandles[i], SurfaceFormat.format, Extent2D);
 		}
 	}
 
 	void SwapChain::CreateDepthResources()
 	{
-		uint32_t imageCount = ImageCount;
+		static Context& context = Context::Get();
 
-		for (uint32_t i = 0; i < imageCount; i++)
+		for (uint32_t i = 0; i < ImageCount; i++)
 		{
 			VkImageCreateInfo imageInfo = Defaults<VkImageCreateInfo>();
 			imageInfo.format = DepthFormat;
 			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-			DepthImages.emplace_back(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
 			VkImageViewCreateInfo viewInfo = Defaults<VkImageViewCreateInfo>();
-			viewInfo.image = DepthImages[0];
 			viewInfo.format = DepthFormat;
 			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-			VkResult result = vkCreateImageView(m_Context.Device, &viewInfo, nullptr, &DepthImages[i].View);
-			ASSERT(result == VK_SUCCESS, "Failed to create a depth image view.");
+			DepthImages.emplace_back(imageInfo, viewInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		}
 	}
 }

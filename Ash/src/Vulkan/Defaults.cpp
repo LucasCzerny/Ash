@@ -96,11 +96,11 @@ namespace Ash::Vulkan
 		info.enabledLayerCount = 0;
 		info.ppEnabledLayerNames = nullptr;
 
-		std::vector<const char*> deviceExtensions = Config::Get().DeviceExtensions;
+		const std::vector<const char*>& deviceExtensions = Config::Get().DeviceExtensions;
 		info.enabledExtensionCount = (uint32_t)deviceExtensions.size();
 		info.ppEnabledExtensionNames = deviceExtensions.data();
 
-		VkPhysicalDeviceFeatures physicalDeviceFeatures;
+		static VkPhysicalDeviceFeatures physicalDeviceFeatures;
 		vkGetPhysicalDeviceFeatures(context.Device, &physicalDeviceFeatures);
 		physicalDeviceFeatures.samplerAnisotropy = VK_TRUE;
 
@@ -172,7 +172,7 @@ namespace Ash::Vulkan
 		info.imageType = VK_IMAGE_TYPE_2D;
 		info.format = VK_FORMAT_R8G8B8A8_UNORM;
 
-		VkExtent2D extent = context.SwapChain.Extent;
+		VkExtent2D extent = context.SwapChain.Extent2D;
 		info.extent.width = extent.width;
 		info.extent.height = extent.height;
 		info.extent.depth = 1;
@@ -199,7 +199,7 @@ namespace Ash::Vulkan
 		static Context& context = Context::Get();
 
 		static VkImageViewCreateInfo info;
-		info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		info.pNext = nullptr;
 		info.flags = NULL;
 
@@ -233,7 +233,7 @@ namespace Ash::Vulkan
 	template<>
 	VkImageMemoryBarrier Defaults()
 	{
-		VkImageMemoryBarrier info;
+		static VkImageMemoryBarrier info;
 
 		info.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		info.pNext = nullptr;
@@ -335,8 +335,8 @@ namespace Ash::Vulkan
 		info.renderPass = VK_NULL_HANDLE; // REQUIRED
 		info.attachmentCount = 0;
 		info.pAttachments = nullptr;
-		info.width = context.SwapChain.Extent.width;
-		info.height = context.SwapChain.Extent.width;
+		info.width = context.SwapChain.Extent2D.width;
+		info.height = context.SwapChain.Extent2D.height;
 		info.layers = 1;
 
 		return info;
@@ -364,7 +364,7 @@ namespace Ash::Vulkan
 		info.waitSemaphoreCount = 0; // OPTIONAL
 		info.pWaitSemaphores = nullptr; // OPTIONAL
 
-		VkPipelineStageFlags stageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		static VkPipelineStageFlags stageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		info.pWaitDstStageMask = &stageFlags;
 		
 		info.commandBufferCount = 0; // REQUIRED
@@ -492,4 +492,68 @@ namespace Ash::Vulkan
 
 		return info;
 	}
+
+	template<>
+	VkDescriptorSetLayoutCreateInfo Defaults()
+	{
+		static VkDescriptorSetLayoutCreateInfo info;
+
+		info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		info.pNext = nullptr;
+		info.flags = NULL;
+		info.bindingCount = 0; // REQUIRED
+		info.pBindings = nullptr; // REQUIRED
+		
+		return info;
+	}
+
+	template<>
+	VkDescriptorSetLayoutBinding Defaults()
+	{
+		static VkDescriptorSetLayoutBinding info;
+
+		info.binding = 0; // REQUIRED
+		info.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // REQUIRED
+		info.descriptorCount = 1;
+		info.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT; // REQUIRED
+		info.pImmutableSamplers = nullptr;
+
+		return info;
+	}
+
+	// DESCRIPTOR
+
+	template<>
+	VkDescriptorBufferInfo Defaults()
+	{
+		static VkDescriptorBufferInfo info;
+
+		info.buffer = VK_NULL_HANDLE; // REQUIRED
+		info.offset = 0;
+		info.range = 0; // REQUIRED
+
+		return info;
+	}
+
+	template<>
+	VkWriteDescriptorSet Defaults()
+	{
+		static VkWriteDescriptorSet info;
+
+		info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		info.pNext = nullptr;
+		info.dstSet = VK_NULL_HANDLE; // REQUIRED
+		info.dstBinding = 0; // REQUIRED
+		info.dstArrayElement = 0;
+		info.descriptorCount = 0; // REQUIRED
+		info.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // REQUIRED
+
+		// REQUIRED (one of these three)
+		info.pImageInfo = nullptr;
+		info.pBufferInfo = nullptr;
+		info.pTexelBufferView = nullptr;
+
+		return info;
+	}
 }
+

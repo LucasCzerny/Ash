@@ -5,8 +5,6 @@
 
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class Device
 	{
 	public:
@@ -17,6 +15,7 @@ namespace Ash::Vulkan
 
 		DeviceSwapChainSupport SwapChainSupport;
 
+	public:
 		Device();
 
 		Device(const Device&) = delete;
@@ -28,11 +27,8 @@ namespace Ash::Vulkan
 		operator VkPhysicalDevice() const { return Physical; }
 
 	private:
-		Context& m_Context;
-
-	private:
 		void ChoosePhysicalDevice();
-		std::array<uint32_t, 2> GetQueueFamilies(VkPhysicalDevice physicalDevice);
+		std::array<uint32_t, 2> GetQueueFamilies(VkPhysicalDevice device);
 		DeviceSwapChainSupport QuerySwapChainSupport(VkPhysicalDevice device);
 		bool IsDeviceSuitable(VkPhysicalDevice device);
 		bool SupportsRequiredExtensions(VkPhysicalDevice device);

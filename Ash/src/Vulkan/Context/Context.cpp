@@ -15,8 +15,9 @@
 
 namespace Ash::Vulkan
 {
-	Context::Context(Config& config)
-		: m_Config(config), Window(m_Config)
+	Context Context::s_Instance;
+
+	Context::Context()
 	{
 		CreateCommandPool();
 		CreateCommandBuffers();
@@ -30,17 +31,12 @@ namespace Ash::Vulkan
     {
         glfwTerminate();
 
-        if (m_Config.EnableValidationLayers)
+        if (Config::Get().EnableValidationLayers)
         {
             auto func = GetExtensionFunction<PFN_vkDestroyDebugUtilsMessengerEXT>("vkDestroyDebugUtilsMessengerEXT");
             func(Instance, m_DebugMessenger, nullptr);
         }
     }
-
-	Context& Context::Get()
-	{
-		return Application::GetActive().GetContext();
-	}
 
 	void Context::Resize(uint32_t width, uint32_t height)
 	{

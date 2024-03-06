@@ -4,17 +4,16 @@
 #include "Core/Assert.h"
 
 #include "Vulkan/Context/Context.h"
+#include "Vulkan/Defaults.h"
 
 namespace Ash::Vulkan
 {
-	Buffer::Buffer()
-		: m_Context(Context::Get()) {}
+	static Context& context = Context::Get();
 
 	Buffer::Buffer(VkBuffer handle, VkDeviceMemory memory, uint32_t size, void* mappedMemory)
-		: m_Context(Context::Get()), Handle(handle), Memory(memory), Size(size), MappedMemory(mappedMemory) {}
+		: Handle(handle), Memory(memory), Size(size), MappedMemory(mappedMemory) {}
 
 	Buffer::Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
-		: m_Context(Context::Get())
 	{
 		VkDeviceSize alignmentSize = GetAlignment(instanceSize, minOffsetAlignment);
 		Size = (uint32_t)alignmentSize * instanceCount;
@@ -25,22 +24,22 @@ namespace Ash::Vulkan
 		bufferInfo.usage = usageFlags;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		VkResult result = vkCreateBuffer(m_Context.Device, &bufferInfo, nullptr, &Handle);
+		VkResult result = vkCreateBuffer(context.Device, &bufferInfo, nullptr, &Handle);
 		ASSERT(result == VK_SUCCESS, "Failed to create the buffer.");
 
 		VkMemoryRequirements memoryRequirements;
-		vkGetBufferMemoryRequirements(m_Context.Device, Handle, &memoryRequirements);
+		vkGetBufferMemoryRequirements(context.Device, Handle, &memoryRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 
 		allocInfo.allocationSize = memoryRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(m_Context.Device, memoryRequirements.memoryTypeBits, memoryPropertyFlags);
+		allocInfo.memoryTypeIndex = FindMemoryType(context.Device, memoryRequirements.memoryTypeBits, memoryPropertyFlags);
 
-		result = vkAllocateMemory(m_Context.Device, &allocInfo, nullptr, &Memory);
+		result = vkAllocateMemory(context.Device, &allocInfo, nullptr, &Memory);
 		ASSERT(result == VK_SUCCESS, "Failed to allocate memory for the buffer.");
 
-		vkBindBufferMemory(m_Context.Device, Handle, Memory, 0);
+		vkBindBufferMemory(context.Device, Handle, Memory, 0);
 	}
 
 	Buffer::Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, void* data, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
@@ -51,7 +50,7 @@ namespace Ash::Vulkan
 
 	Buffer::~Buffer()
 	{
-		vkDestroyBuffer(m_Context.Device, Handle, nullptr);
+		vkDestroyBuffer(context.Device, Handle, nullptr);
 		Unmap();
 	}
 
@@ -64,13 +63,35 @@ namespace Ash::Vulkan
 
 	void Buffer::Map(uint32_t offset)
 	{
-		VkResult result = vkMapMemory(m_Context.Device, Memory, offset, Size, NULL, &MappedMemory);
+		VkResult result = vkMapMemory(context.Device, Memory, offset, Size, NULL, &MappedMemory);
 		ASSERT(result == VK_SUCCESS, "Failed to map the buffer memory.");
 	}
 
 	void Buffer::Unmap()
 	{
-		vkUnmapMemory(m_Context.Device, Memory);
+		vkUnmapMemory(context.Device, Memory);
+	}
+
+	void Buffer::WriteToDescriptor(VkDescriptorType type, const Descriptor& descriptor)
+	{
+		static Context& context = Context::Get();
+
+		VkDescriptorBufferInfo bufferInfo = Defaults<VkDescriptorBufferInfo>();
+		{
+			bufferInfo.buffer = Handle;
+			bufferInfo.range = Size;
+		}
+
+		VkWriteDescriptorSet writeDescriptor = Vulkan::Defaults<VkWriteDescriptorSet>();
+		{
+			writeDescriptor.dstSet = descriptor;
+			writeDescriptor.dstBinding = 0;
+			writeDescriptor.descriptorType = type;
+			writeDescriptor.descriptorCount = 1;
+			writeDescriptor.pBufferInfo = &bufferInfo;
+		}
+
+		vkUpdateDescriptorSets(context.Device, 1, &writeDescriptor, 0, nullptr);
 	}
 
 	VkDeviceSize Buffer::GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment)

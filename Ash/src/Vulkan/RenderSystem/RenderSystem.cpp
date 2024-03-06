@@ -4,30 +4,41 @@
 #include "Core/Assert.h"
 
 #include "Vulkan/Defaults.h"
+#include "Vulkan/Context/Context.h"
 
 namespace Ash::Vulkan
 {
+	static Context& context = Context::Get();
+
+	RenderSystem::RenderSystem(const std::vector<Pipeline>& pipelines)
+		: m_Pipelines(pipelines)
+	{
+		CreateSyncObjects();
+	}
+		
 	RenderSystem::~RenderSystem()
 	{
-		for (uint32_t i = 0; i < 3; i++)
+		static const uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
+
+		for (uint32_t i = 0; i < maxFramesInFlight; i++)
 		{
-			vkDestroySemaphore(m_Context.Device, m_RenderingFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(m_Context.Device, m_ImageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(m_Context.Device, m_InFlightFences[i], nullptr);
+			vkDestroySemaphore(context.Device, m_RenderingFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(context.Device, m_ImageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(context.Device, m_InFlightFences[i], nullptr);
 		}
 	}
 
-	void RenderSystem::DrawScene(const Scene& scene)
+	void RenderSystem::DrawScene(Scene& scene)
 	{
 		static const uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
 		static uint32_t currentFrame = 0;
 
-		VkCommandBuffer commandBuffer = m_Context.CommandBuffers[currentFrame];
+		VkCommandBuffer commandBuffer = context.CommandBuffers[currentFrame];
 		uint32_t imageIndex = AquireNextImage(currentFrame);
 
 		if (imageIndex == UINT32_MAX)
 		{
-			m_Context.SwapChain.Recreate();
+			context.SwapChain.Recreate();
 			OnSwapChainRecreation();
 
 			Log::Info("Swap Chain is being recreated because it was out of date.");
@@ -36,14 +47,14 @@ namespace Ash::Vulkan
 
 		for (const Pipeline& pipeline : m_Pipelines)
 		{
-			pipeline.RecordCommandBuffer(commandBuffer, currentFrame);
+			pipeline.RecordCommandBuffer(commandBuffer, currentFrame, scene);
 		}
 
 		VkResult result = SubmitCommandBuffer(commandBuffer, currentFrame, imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
-			m_Context.SwapChain.Recreate();
+			context.SwapChain.Recreate();
 			OnSwapChainRecreation();
 
 			Log::Info("Swap Chain is being recreated because it was out of date or suboptimal.");
@@ -58,11 +69,13 @@ namespace Ash::Vulkan
 
 	void RenderSystem::CreateSyncObjects()
 	{
-		static uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
+		// static uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
 
-		m_ImageAvailableSemaphores.resize(maxFramesInFlight);
-		m_RenderingFinishedSemaphores.resize(maxFramesInFlight);
-		m_InFlightFences.resize(maxFramesInFlight);
+		uint32_t imageCount = Context::Get().SwapChain.ImageCount;
+
+		m_ImageAvailableSemaphores.resize(imageCount);
+		m_RenderingFinishedSemaphores.resize(imageCount);
+		m_InFlightFences.resize(imageCount);
 		// m_ImagesInFlight.resize(maxFramesInFlight);
 
 		VkSemaphoreCreateInfo semaphoreInfo = Defaults<VkSemaphoreCreateInfo>();
@@ -70,22 +83,22 @@ namespace Ash::Vulkan
 		VkFenceCreateInfo fenceInfo = Defaults<VkFenceCreateInfo>();
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (uint32_t i = 0; i < maxFramesInFlight; i++)
+		for (uint32_t i = 0; i < imageCount; i++)
 		{
 			VkResult result = (VkResult)(
-				vkCreateSemaphore(m_Context.Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) +
-				vkCreateSemaphore(m_Context.Device, &semaphoreInfo, nullptr, &m_RenderingFinishedSemaphores[i]) +
-				vkCreateFence(m_Context.Device, &fenceInfo, nullptr, &m_InFlightFences[i])
+				vkCreateSemaphore(context.Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) +
+				vkCreateSemaphore(context.Device, &semaphoreInfo, nullptr, &m_RenderingFinishedSemaphores[i]) +
+				vkCreateFence(context.Device, &fenceInfo, nullptr, &m_InFlightFences[i])
 			);
 
-			ASSERT(result == VK_SUCCESS, "Failed to craete the synchronization objects.");
+			ASSERT(result == VK_SUCCESS, "Failed to create the synchronization objects.");
 		}
 	}
 
 	uint32_t RenderSystem::AquireNextImage(uint32_t currentFrame)
 	{
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(m_Context.Device, m_Context.SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(context.Device, context.SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -99,8 +112,8 @@ namespace Ash::Vulkan
 
 	VkResult RenderSystem::SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex)
 	{
-		vkWaitForFences(m_Context.Device, 1, &m_InFlightFences[imageIndex], VK_TRUE, UINT64_MAX);
-		vkResetFences(m_Context.Device, 1, &m_InFlightFences[imageIndex]);
+		vkWaitForFences(context.Device, 1, &m_InFlightFences[imageIndex], VK_TRUE, UINT64_MAX);
+		vkResetFences(context.Device, 1, &m_InFlightFences[imageIndex]);
 
 		VkSubmitInfo submitInfo = Defaults<VkSubmitInfo>();
 		{
@@ -111,21 +124,21 @@ namespace Ash::Vulkan
 			submitInfo.pCommandBuffers = &commandBuffer;
 
 			submitInfo.signalSemaphoreCount = 1;
-			submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphores[currentFrame];
+			submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphores[imageIndex];
 		}
 
-		VkResult result = vkQueueSubmit(m_Context.Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[imageIndex]);
+		VkResult result = vkQueueSubmit(context.Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[imageIndex]);
 		ASSERT(result == VK_SUCCESS, "Failed to submit a command buffer to the graphics queue.");
 
 		VkPresentInfoKHR presentInfo = Defaults<VkPresentInfoKHR>();
 		{
 			presentInfo.waitSemaphoreCount = 1;
-			presentInfo.pWaitSemaphores = &m_RenderingFinishedSemaphores[currentFrame];
+			presentInfo.pWaitSemaphores = &m_RenderingFinishedSemaphores[imageIndex];
 
 			presentInfo.pImageIndices = &imageIndex;
 		}
 
-		result = vkQueuePresentKHR(m_Context.Device.GraphicsQueue, &presentInfo);
+		result = vkQueuePresentKHR(context.Device.GraphicsQueue, &presentInfo);
 		
 		return result;
 	}

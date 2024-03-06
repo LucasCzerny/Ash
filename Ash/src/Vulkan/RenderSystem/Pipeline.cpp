@@ -12,24 +12,47 @@
 namespace Ash::Vulkan
 {
 	Pipeline::Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> recordFunction)
-		: m_RecordFunction(recordFunction)
+		: m_RecordWithoutScene(recordFunction)
 	{
-		CreateFramebuffers();
 		CreateGraphicsPipeline(config);
+		CreateFramebuffers();
+	}
+
+	Pipeline::Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, Scene&)> recordFunction)
+		: m_RecordWithScene(recordFunction)
+	{
+		CreateGraphicsPipeline(config);
+		CreateFramebuffers();
 	}
 
 	Pipeline::Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> recordFunction)
-		: m_RecordFunction(recordFunction)
+		: m_RecordWithoutScene(recordFunction)
 	{
-		CreateFramebuffers();
 		CreateComputePipeline(config);
+		CreateFramebuffers();
 	}
 
-	void Pipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame) const
+	Pipeline::Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, Scene&)> recordFunction)
+		: m_RecordWithScene(recordFunction)
 	{
-		ASSERT(m_RecordFunction != nullptr, "The record function needs to be implemented.");
+		CreateComputePipeline(config);
+		CreateFramebuffers();
+	}
 
-		m_RecordFunction(*this, commandBuffer, currentFrame);
+	void Pipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, Scene& scene) const
+	{
+		if (m_RecordWithoutScene != nullptr)
+		{
+			m_RecordWithoutScene(*this, commandBuffer, currentFrame);
+		}
+		else if (m_RecordWithScene != nullptr)
+		{
+			m_RecordWithScene(*this, commandBuffer, currentFrame, scene);
+		}
+		else
+		{
+			ASSERT(false, "A record function needs to be implemented.");
+		}
 	}
 
 	void Pipeline::CreateGraphicsPipeline(const PipelineConfig& config)
@@ -39,7 +62,7 @@ namespace Ash::Vulkan
 		VkResult result = vkCreateRenderPass(context.Device, &config.RenderPassInfo, nullptr, &RenderPass);
 		ASSERT(result == VK_SUCCESS, "Failed to create the render pass.");
 
-		result = vkCreatePipelineLayout(context.Device, &config.PipelineLayoutInfo, nullptr, &PipelineLayout);
+		result = vkCreatePipelineLayout(context.Device, &config.PipelineLayoutInfo, nullptr, &Layout);
 		ASSERT(result == VK_SUCCESS, "Failed to create the pipeline layout.");
 
 		ASSERT(config.VertexShaderPath != "", "You need to set the vertex shader before creating a pipeline.");
@@ -93,7 +116,7 @@ namespace Ash::Vulkan
 			pipelineInfo.pDepthStencilState = &config.DepthStencilInfo;
 			pipelineInfo.pDynamicState = &config.DynamicStateInfo;
 
-			pipelineInfo.layout = PipelineLayout;
+			pipelineInfo.layout = Layout;
 			pipelineInfo.renderPass = RenderPass;
 			pipelineInfo.subpass = config.Subpass;
 
@@ -152,6 +175,8 @@ namespace Ash::Vulkan
 
 	void Pipeline::CreateFramebuffers()
 	{
+		static Context& context = Context::Get();
+
 		ASSERT(RenderPass != VK_NULL_HANDLE, "You need create a render pass before creating the framebuffers.");
 
 		if (Framebuffers.size() != 0)
@@ -159,11 +184,11 @@ namespace Ash::Vulkan
 			DestroyFramebuffers();
 		}
 
-		Framebuffers.resize(m_Context.SwapChain.ImageCount);
+		Framebuffers.resize(context.SwapChain.ImageCount);
 
-		for (uint32_t i = 0; i < m_Context.SwapChain.ImageCount; i++)
+		for (uint32_t i = 0; i < context.SwapChain.ImageCount; i++)
 		{
-			std::array<VkImageView, 2> attachments = { m_Context.SwapChain.Images[i].View, m_Context.SwapChain.DepthImages[i].View };
+			std::array<VkImageView, 2> attachments = { context.SwapChain.Images[i].View, context.SwapChain.DepthImages[i].View };
 
 			VkFramebufferCreateInfo framebufferInfo = Defaults<VkFramebufferCreateInfo>();
 			{
@@ -173,16 +198,18 @@ namespace Ash::Vulkan
 				framebufferInfo.renderPass = RenderPass;
 			}
 
-			VkResult result = vkCreateFramebuffer(m_Context.Device, &framebufferInfo, nullptr, &Framebuffers[i]);
+			VkResult result = vkCreateFramebuffer(context.Device, &framebufferInfo, nullptr, &Framebuffers[i]);
 			ASSERT(result == VK_SUCCESS, "Failed to create a framebuffer.");
 		}
 	}
 
 	void Pipeline::DestroyFramebuffers()
 	{
+		static Context& context = Context::Get();
+
 		for (auto framebuffer : Framebuffers)
 		{
-			vkDestroyFramebuffer(m_Context.Device, framebuffer, nullptr);
+			vkDestroyFramebuffer(context.Device, framebuffer, nullptr);
 		}
 	}
 }

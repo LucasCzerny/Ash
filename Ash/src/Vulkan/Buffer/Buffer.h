@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vulkan/Descriptor/Descriptor.h"
+
 namespace Ash::Vulkan
 {
 	class Context;
@@ -13,7 +15,7 @@ namespace Ash::Vulkan
 		void* MappedMemory = nullptr;
 
 	public:
-		Buffer();
+		Buffer() = default;
 		Buffer(VkBuffer handle, VkDeviceMemory memory, uint32_t size, void* mappedMemory = nullptr);
 
 		Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
@@ -40,6 +42,8 @@ namespace Ash::Vulkan
 
 		void Map(uint32_t offset = 0);
 		void Unmap();
+
+		void WriteToDescriptor(VkDescriptorType type, const Descriptor& descriptor);
 
 		// TODO: is this good?
 		VkBuffer* Pointer() { return &Handle; }

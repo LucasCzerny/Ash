@@ -25,10 +25,10 @@ namespace Ash::Vulkan
 		VkDescriptorPool DescriptorPool;
 
 	public:
-		Context(Config& config);
+		Context();
 		~Context();
 
-		static Context& Get();
+		static Context& Get() { return s_Instance; }
 
 		void Resize(uint32_t width, uint32_t height);
 
@@ -38,9 +38,9 @@ namespace Ash::Vulkan
 		T GetExtensionFunction(const std::string& name);
 
 	private:
-		Config& m_Config;
-
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
+
+		static Context s_Instance;
 
 	private:
 		void CreateCommandPool();

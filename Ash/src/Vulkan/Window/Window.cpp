@@ -8,25 +8,28 @@
 
 namespace Ash::Vulkan
 {
-	Window::Window(const Config& config)
-		: m_Context(Context::Get()), Width(config.Width), Height(config.Height), Extent2D{ Width, Height }, Extent3D{ Width, Height, 0 }
+	Window::Window()
+		: Width(Config::Get().Width), Height(Config::Get().Height), Extent2D{Width, Height}, Extent3D{Width, Height, 0}
 	{
-		glfwSetErrorCallback(GlfwErrorCallback);
+		static Context& context = Context::Get();
+        static Config& config = Config::Get();
 
-		ASSERT(glfwInit(), "Failed to initialize GLFW.");
+		glfwSetErrorCallback(GlfwErrorCallback);
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		Handle = glfwCreateWindow(config.Width, config.Height, config.Title.c_str(), nullptr, nullptr);
 
 		glfwWindowHint(GLFW_RESIZABLE, config.Resizable);
 
-		VkResult result = glfwCreateWindowSurface(m_Context.Instance, Handle, NULL, &Surface);
+		VkResult result = glfwCreateWindowSurface(context.Instance, Handle, NULL, &Surface);
 		ASSERT(result == VK_SUCCESS, "Failed to create the window surface.");
 	}
 
 	Window::~Window()
 	{
-		vkDestroySurfaceKHR(m_Context.Instance, Surface, nullptr);
+		static Context& context = Context::Get();
+
+		vkDestroySurfaceKHR(context.Instance, Surface, nullptr);
 		glfwDestroyWindow(Handle);
 	}
 

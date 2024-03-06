@@ -3,15 +3,22 @@
 
 namespace Ash
 {
-	Application Application::s_Instance;
+	Application* Application::s_ActiveApplication = nullptr;
 
-	static Vulkan::Context& context = Vulkan::Context::Get();
+	Application::Application(const Config& config)
+		: m_Config(config), m_Context(m_Config)
+	{
+		if (s_ActiveApplication == nullptr)
+		{
+			SetActive();
+		}
+	}
 
 	void Application::Run()
 	{
 		float lastTime = (float)glfwGetTime();
 
-		while (!glfwWindowShouldClose(context.Window))
+		while (!glfwWindowShouldClose(m_Context.Window))
 		{
 			float time = (float)glfwGetTime();
 			float deltaTime = time - lastTime;
@@ -25,6 +32,8 @@ namespace Ash
 			// ImGui_ImplGlfw_NewFrame();
 			// ImGui::NewFrame();
 
+			DrawUi();
+
 			// ImGui::Render();
 
 			glfwPollEvents();
@@ -33,42 +42,31 @@ namespace Ash
 
 	void Application::DispatchEvent(Event& event)
 	{
-		Get().OnEvent(event);
+		GetActive().OnEvent(event);
 	}
 
-	void Application::AddLayer(std::unique_ptr<Layer> layer)
+	void Application::SetActive()
 	{
-		m_Layers.push_back(std::move(layer));
+		s_ActiveApplication = this;
+	}
+
+	void Application::AddLayer(const Layer& layer)
+	{
+		m_Layers.push_back(layer);
 	}
 
 	void Application::RemoveLayer(const Layer& layer)
 	{
 		for (auto it = m_Layers.begin(); it != m_Layers.end(); it++)
 		{
-			if (layer == *(*it).get())
+			if (layer == *it)
 			{
 				m_Layers.erase(it);
 				break;
 			}
 		}
 	}
-	
-	void Application::Update(float deltaTime)
-	{
-		for (std::unique_ptr<Layer>& layer : m_Layers)
-		{
-			layer->Update(deltaTime);
-		}
-	}
 
-	void Application::Draw()
-	{
-		for (std::unique_ptr<Layer>& layer : m_Layers)
-		{
-			layer->Draw();
-		}
-	}
-	
 	void Application::OnEvent(Event& event)
 	{
 		if (event.HasType(EventType::WindowResize))
@@ -76,9 +74,9 @@ namespace Ash
 			ResizeWindow(event.Cast<WindowResizeEvent>());
 		}
 
-		for (std::unique_ptr<Layer>& layer : m_Layers)
+		for (Layer& layer : m_Layers)
 		{
-			bool handled = layer->OnEvent(event);
+			bool handled = layer.OnEvent(event);
 
 			if (handled)
 			{
@@ -92,6 +90,6 @@ namespace Ash
 	void Application::ResizeWindow(WindowResizeEvent& event)
 	{
 		Log::Info("Application::ResizeWindow: ", event.Width, ", ", event.Height);
-		context.Resize(event.Width, event.Height);
+		m_Context->Resize(event.Width, event.Height);
 	}
 }

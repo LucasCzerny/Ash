@@ -10,50 +10,39 @@
 
 namespace Ash::Vulkan
 {
-    Texture::Texture()
-        : m_Context(Context::Get()) {}
-
-    Texture::Texture(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties)
-        : m_Context(Context::Get())
+    Texture::Texture(VkImageCreateInfo imageInfo, VkImageViewCreateInfo viewInfo, VkMemoryPropertyFlags properties)
+        : Width(imageInfo.extent.width), Height(imageInfo.extent.height), Extent2D{ Width, Height }, Extent3D(imageInfo.extent), Format(imageInfo.format)
     {
-        Width = imageInfo.extent.width;
-        Height = imageInfo.extent.height;
-        Extent = imageInfo.extent;
+		static Context& context = Context::Get();
 
-        Format = imageInfo.format;
-
-        VkResult result = vkCreateImage(m_Context.Device, &imageInfo, nullptr, &Image);
+        VkResult result = vkCreateImage(context.Device, &imageInfo, nullptr, &Image);
         ASSERT(result == VK_SUCCESS, "Failed to create an image.");
 
-        VkImageViewCreateInfo viewInfo = Defaults<VkImageViewCreateInfo>();
-        {
-            viewInfo.image = Image;
-            viewInfo.format = Format;
-        }
-
-        result = vkCreateImageView(m_Context.Device, &viewInfo, nullptr, &View);
-
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(m_Context.Device, Image, &memRequirements);
+        vkGetImageMemoryRequirements(context.Device, Image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo = Defaults<VkMemoryAllocateInfo>();
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
-
-        result = vkAllocateMemory(m_Context.Device, &allocInfo, nullptr, &Memory);
+        {
+			allocInfo.allocationSize = memRequirements.size;
+			allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+        }
+        
+        result = vkAllocateMemory(context.Device, &allocInfo, nullptr, &Memory);
         ASSERT(result == VK_SUCCESS, "Failed to allocate image memory.");
 
-        result = vkBindImageMemory(m_Context.Device, Image, Memory, 0);
+        result = vkBindImageMemory(context.Device, Image, Memory, 0);
         ASSERT(result == VK_SUCCESS, "Failed to bind image memory.");
+
+		viewInfo.image = Image;
+		viewInfo.format = Format;
+
+        result = vkCreateImageView(context.Device, &viewInfo, nullptr, &View);
+        ASSERT(result == VK_SUCCESS, "Failed to create an image view.");
     }
 
-    Texture::Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb)
-        : m_Context(Context::Get())
+    Texture::Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb, VkImageViewCreateInfo viewInfo)
+        : Width(width), Height(height), Extent2D{ Width,Height }, Extent3D { Width, Height, 1 }
     {
-        Width = width;
-        Height = height;
-        Extent = VkExtent3D{ width, height, 1 };
-
         switch (channels)
         {
             case 1: Format = VK_FORMAT_R8_UNORM; break;
@@ -73,11 +62,11 @@ namespace Ash::Vulkan
         VkImageCreateInfo imageInfo = Defaults<VkImageCreateInfo>();
         {
 			imageInfo.format = Format;
-			imageInfo.extent = Extent;
+			imageInfo.extent = Extent3D;
 			imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         }
 
-        Texture(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        Texture(imageInfo, viewInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         Transition(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -95,8 +84,10 @@ namespace Ash::Vulkan
 
     Texture::~Texture()
     {
-        vkDestroyImage(m_Context.Device, Image, nullptr);
-        vkDestroyImageView(m_Context.Device, View, nullptr);
+        static Context& context = Context::Get();
+
+        vkDestroyImage(context.Device, Image, nullptr);
+        vkDestroyImageView(context.Device, View, nullptr);
     }
 
     void Texture::Transition(VkImageLayout from, VkImageLayout to, VkCommandBuffer commandBuffer)
@@ -181,7 +172,7 @@ namespace Ash::Vulkan
 
         VkBufferImageCopy region = Defaults<VkBufferImageCopy>();
         {
-			region.imageExtent = Extent;
+			region.imageExtent = Extent3D;
         }
 
         vkCmdCopyBufferToImage(
@@ -196,8 +187,10 @@ namespace Ash::Vulkan
 
     uint32_t Texture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
+		static Context& context = Context::Get();
+
         VkPhysicalDeviceMemoryProperties memoryProperties{};
-        vkGetPhysicalDeviceMemoryProperties(m_Context.Device, &memoryProperties);
+        vkGetPhysicalDeviceMemoryProperties(context.Device, &memoryProperties);
 
         for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
         {
@@ -209,5 +202,10 @@ namespace Ash::Vulkan
 
         ASSERT(false, "Failed to find a supported memory type.");
         return 0;
+    }
+
+    VkImageViewCreateInfo DefaultImageView()
+    {
+        return Defaults<VkImageViewCreateInfo>();
     }
 }

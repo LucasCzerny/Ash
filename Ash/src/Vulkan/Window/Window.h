@@ -4,8 +4,6 @@
 
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class Window
 	{
 	public:
@@ -19,7 +17,7 @@ namespace Ash::Vulkan
 		float LastResizeTime = 0.0f;
 
 	public:
-		Window(const Config& config);
+		Window();
 		~Window();
 
 		// Not copyable or moveable
@@ -35,8 +33,5 @@ namespace Ash::Vulkan
 		VkExtent3D GetExtent3D() const { return VkExtent3D{ Width, Height, 0 }; }
 
 		operator GLFWwindow*() const { return Handle; }
-
-	private:
-		Context& m_Context;
 	};
 }

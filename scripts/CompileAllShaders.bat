@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 set BATCH_DIR="%~dp0"
 
 pushd %BATCH_DIR%
-pushd ..\Ash\src\Shaders
+pushd ..\SpinningCube\Resources\Shaders
 
 if not exist compiled mkdir compiled
 
