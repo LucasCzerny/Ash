@@ -1,7 +1,6 @@
 workspace "Ash"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
-   startproject "SpinningCube"
 
 include "definitions.lua"
 
@@ -15,4 +14,3 @@ group "External Libs"
 group ""
 
 include "Ash"
-include "SpinningCube"
