@@ -4,6 +4,15 @@
 
 namespace Ash::Vulkan::Utility
 {
-	Buffer CreateCubeVertexBuffer();
-	Buffer CreateCubeIndexBuffer();
+	struct CubeVertex
+	{
+		glm::vec3 Position;
+		glm::vec2 TexCoords;
+
+		static Vulkan::Buffer CreateVertexBuffer();
+		static Vulkan::Buffer CreateIndexBuffer();
+
+		static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+	};
 }

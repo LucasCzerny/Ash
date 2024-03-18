@@ -11,7 +11,10 @@ namespace Ash::Vulkan
 	static Context& context = Context::Get();
 
 	Buffer::Buffer(VkBuffer handle, VkDeviceMemory memory, uint32_t size, void* mappedMemory)
-		: Handle(handle), Memory(memory), Size(size), MappedMemory(mappedMemory) {}
+		: Handle(handle), Memory(memory), Size(size), MappedMemory(mappedMemory)
+	{
+		Map();
+	}
 
 	Buffer::Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment)
 	{
@@ -51,7 +54,6 @@ namespace Ash::Vulkan
 	Buffer::~Buffer()
 	{
 		vkDestroyBuffer(context.Device, Handle, nullptr);
-		Unmap();
 	}
 
 	void Buffer::CopyData(void* data)
@@ -72,26 +74,15 @@ namespace Ash::Vulkan
 		vkUnmapMemory(context.Device, Memory);
 	}
 
-	void Buffer::WriteToDescriptor(VkDescriptorType type, const Descriptor& descriptor)
+	VkDescriptorBufferInfo Buffer::GetDescriptorBufferInfo() const
 	{
-		static Context& context = Context::Get();
-
-		VkDescriptorBufferInfo bufferInfo = Defaults<VkDescriptorBufferInfo>();
+		VkDescriptorBufferInfo bufferInfo = Vulkan::Defaults<VkDescriptorBufferInfo>();
 		{
 			bufferInfo.buffer = Handle;
 			bufferInfo.range = Size;
 		}
 
-		VkWriteDescriptorSet writeDescriptor = Vulkan::Defaults<VkWriteDescriptorSet>();
-		{
-			writeDescriptor.dstSet = descriptor;
-			writeDescriptor.dstBinding = 0;
-			writeDescriptor.descriptorType = type;
-			writeDescriptor.descriptorCount = 1;
-			writeDescriptor.pBufferInfo = &bufferInfo;
-		}
-
-		vkUpdateDescriptorSets(context.Device, 1, &writeDescriptor, 0, nullptr);
+		return bufferInfo;
 	}
 
 	VkDeviceSize Buffer::GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment)

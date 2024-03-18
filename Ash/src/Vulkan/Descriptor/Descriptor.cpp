@@ -4,6 +4,7 @@
 #include "Core/Assert.h"
 
 #include "Vulkan/Context/Context.h"
+#include "Vulkan/Defaults.h"
 
 namespace Ash::Vulkan
 {
@@ -30,6 +31,40 @@ namespace Ash::Vulkan
 		vkCmdBindDescriptorSets(commandBuffer, bindPoint, layout, firstSet, 1, &Set, 0, nullptr);
 	}
 
+	void Descriptor::Update(const VkDescriptorBufferInfo& bufferInfo, uint32_t binding, VkDescriptorType descriptorType)
+	{
+		static Context& context = Context::Get();
+
+		VkWriteDescriptorSet writeDescriptor = Defaults<VkWriteDescriptorSet>();
+		{
+			writeDescriptor.dstSet = Set;
+			writeDescriptor.dstBinding = binding;
+			writeDescriptor.descriptorCount = 1;
+			writeDescriptor.descriptorType = descriptorType;
+
+			writeDescriptor.pBufferInfo = &bufferInfo;
+		}
+
+		vkUpdateDescriptorSets(context.Device, 1, &writeDescriptor, 0, nullptr);
+	}
+
+	void Descriptor::Update(const VkDescriptorImageInfo& imageInfo, uint32_t binding, VkDescriptorType descriptorType)
+	{
+		static Context& context = Context::Get();
+
+		VkWriteDescriptorSet writeDescriptor = Defaults<VkWriteDescriptorSet>();
+		{
+			writeDescriptor.dstSet = Set;
+			writeDescriptor.dstBinding = binding;
+			writeDescriptor.descriptorCount = 1;
+			writeDescriptor.descriptorType = descriptorType;
+
+			writeDescriptor.pImageInfo = &imageInfo;
+		}
+
+		vkUpdateDescriptorSets(context.Device, 1, &writeDescriptor, 0, nullptr);
+	}
+
 	DescriptorGroup::DescriptorGroup(const VkDescriptorSetLayoutCreateInfo& layoutInfo, uint32_t count)
 	{
 		static Context& context = Context::Get();
@@ -52,8 +87,8 @@ namespace Ash::Vulkan
 		ASSERT(result == VK_SUCCESS, "Failed to allocate descriptor sets.");
 	}
 
-	VkDescriptorSet DescriptorGroup::operator[](int index)
+	Descriptor DescriptorGroup::operator[](int index)
 	{
-		return Sets[index];
+		return Descriptor{ Layout, Sets[index] };
 	}
 }

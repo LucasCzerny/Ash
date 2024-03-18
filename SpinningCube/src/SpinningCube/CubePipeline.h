@@ -9,11 +9,11 @@ namespace SpinningCube::CubePipeline
 	struct Data
 	{
 	public:
-		Vulkan::Buffer VertexBuffer = Vulkan::Utility::CreateCubeVertexBuffer();
-		Vulkan::Buffer IndexBuffer = Vulkan::Utility::CreateCubeIndexBuffer();
+		Vulkan::Buffer VertexBuffer = Vulkan::Utility::CubeVertex::CreateVertexBuffer();
+		Vulkan::Buffer IndexBuffer = Vulkan::Utility::CubeVertex::CreateIndexBuffer();
 
-		Vulkan::Descriptor CameraDescriptor;
-		Vulkan::Buffer CameraUbo;
+		Vulkan::DescriptorGroup CameraDescriptors;
+		std::deque<Vulkan::Buffer> CameraUbos;
 
 	public:
 		static Data& Get();
@@ -25,10 +25,10 @@ namespace SpinningCube::CubePipeline
 	};
 
 	Vulkan::PipelineConfig CreateConfig();
-	void Record(const Vulkan::Pipeline& pipeline, VkCommandBuffer commandBuffer, uint32_t imageIndex, Scene& scene);
+	void Record(const Vulkan::Pipeline& pipeline, VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex, Scene& scene);
 
-	static void CreateDescriptor();
-	static void CreateBuffer();
+	static void CreateBuffers();
+	static void CreateDescriptors();
 
 	static VkPipelineLayoutCreateInfo CreateLayoutInfo();
 	static VkRenderPassCreateInfo& CreateRenderPassInfo();

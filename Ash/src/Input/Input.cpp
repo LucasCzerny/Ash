@@ -16,10 +16,10 @@ namespace Ash::Input
 	{
 		static Vulkan::Context& context = Vulkan::Context::Get();
 
-		if (ImGui::GetIO().WantCaptureMouse)
-		{
-			return KeyState::Captured;
-		}
+		// if (ImGui::GetIO().WantCaptureMouse)
+		// {
+		// 	return KeyState::Captured;
+		// }
 
 		return (KeyState)glfwGetMouseButton(context.Window, (int)mouseButton);
 	}

@@ -555,5 +555,16 @@ namespace Ash::Vulkan
 
 		return info;
 	}
+
+	template<>
+	VkPushConstantRange Defaults()
+	{
+		static VkPushConstantRange info;
+		info.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // REQUIRED
+		info.offset = 0;
+		info.size = 0; // REQUIRED
+
+		return info;
+	}
 }
 

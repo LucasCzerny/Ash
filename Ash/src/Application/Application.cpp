@@ -17,7 +17,6 @@ namespace Ash
 			float deltaTime = time - lastTime;
 			lastTime = time;
 
-			// m_Scene.OnUpdate(deltaTime);
 			Update(deltaTime);
 			Draw();
 

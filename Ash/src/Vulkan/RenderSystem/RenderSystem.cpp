@@ -45,9 +45,12 @@ namespace Ash::Vulkan
 			return;
 		}
 
+		vkWaitForFences(context.Device, 1, &m_InFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+		vkResetFences(context.Device, 1, &m_InFlightFences[currentFrame]);
+
 		for (const Pipeline& pipeline : m_Pipelines)
 		{
-			pipeline.RecordCommandBuffer(commandBuffer, currentFrame, scene);
+			pipeline.RecordCommandBuffer(commandBuffer, currentFrame, imageIndex, scene);
 		}
 
 		VkResult result = SubmitCommandBuffer(commandBuffer, currentFrame, imageIndex);
@@ -69,13 +72,11 @@ namespace Ash::Vulkan
 
 	void RenderSystem::CreateSyncObjects()
 	{
-		// static uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
+		static uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
 
-		uint32_t imageCount = Context::Get().SwapChain.ImageCount;
-
-		m_ImageAvailableSemaphores.resize(imageCount);
-		m_RenderingFinishedSemaphores.resize(imageCount);
-		m_InFlightFences.resize(imageCount);
+		m_ImageAvailableSemaphores.resize(maxFramesInFlight);
+		m_RenderingFinishedSemaphores.resize(maxFramesInFlight);
+		m_InFlightFences.resize(maxFramesInFlight);
 		// m_ImagesInFlight.resize(maxFramesInFlight);
 
 		VkSemaphoreCreateInfo semaphoreInfo = Defaults<VkSemaphoreCreateInfo>();
@@ -83,7 +84,7 @@ namespace Ash::Vulkan
 		VkFenceCreateInfo fenceInfo = Defaults<VkFenceCreateInfo>();
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (uint32_t i = 0; i < imageCount; i++)
+		for (uint32_t i = 0; i < maxFramesInFlight; i++)
 		{
 			VkResult result = (VkResult)(
 				vkCreateSemaphore(context.Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) +
@@ -112,9 +113,6 @@ namespace Ash::Vulkan
 
 	VkResult RenderSystem::SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex)
 	{
-		vkWaitForFences(context.Device, 1, &m_InFlightFences[imageIndex], VK_TRUE, UINT64_MAX);
-		vkResetFences(context.Device, 1, &m_InFlightFences[imageIndex]);
-
 		VkSubmitInfo submitInfo = Defaults<VkSubmitInfo>();
 		{
 			submitInfo.waitSemaphoreCount = 1;
@@ -124,16 +122,16 @@ namespace Ash::Vulkan
 			submitInfo.pCommandBuffers = &commandBuffer;
 
 			submitInfo.signalSemaphoreCount = 1;
-			submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphores[imageIndex];
+			submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphores[currentFrame];
 		}
 
-		VkResult result = vkQueueSubmit(context.Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[imageIndex]);
+		VkResult result = vkQueueSubmit(context.Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[currentFrame]);
 		ASSERT(result == VK_SUCCESS, "Failed to submit a command buffer to the graphics queue.");
 
 		VkPresentInfoKHR presentInfo = Defaults<VkPresentInfoKHR>();
 		{
 			presentInfo.waitSemaphoreCount = 1;
-			presentInfo.pWaitSemaphores = &m_RenderingFinishedSemaphores[imageIndex];
+			presentInfo.pWaitSemaphores = &m_RenderingFinishedSemaphores[currentFrame];
 
 			presentInfo.pImageIndices = &imageIndex;
 		}

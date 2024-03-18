@@ -18,10 +18,10 @@ namespace Ash::Vulkan
 		std::vector<VkFramebuffer> Framebuffers;
 		
 	public:
-		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> recordFunction);
-		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, Scene&)> recordFunction);
-		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> recordFunction);
-		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, Scene&)> recordFunction);
+		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);
+		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction);
+		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);
+		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction);
 		
 		// Not copyable or moveable
 		// Pipeline(const Pipeline&) = delete;
@@ -29,13 +29,13 @@ namespace Ash::Vulkan
 		// Pipeline(Pipeline&&) noexcept {}
 		// Pipeline& operator=(Pipeline&&) noexcept {}
 
-		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, Scene& scene = Scene()) const;
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex, Scene& scene = Scene()) const;
 
 		operator VkPipeline() const { return Handle; }
 
 	private:
-		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t)> m_RecordWithoutScene = nullptr;
-		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, Scene&)> m_RecordWithScene = nullptr;
+		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> m_RecordWithoutScene = nullptr;
+		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> m_RecordWithScene = nullptr;
 
 	private:
 		void CreateGraphicsPipeline(const PipelineConfig& config);

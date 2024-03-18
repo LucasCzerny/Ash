@@ -17,6 +17,8 @@ namespace SpinningCube
 
     void RenderingLayer::Update(float deltaTime)
     {
+		m_Scene.OnUpdate(deltaTime);
+
 		static unsigned int frameCounter = 0;
 
 		if (frameCounter++ % 10000 == 0)

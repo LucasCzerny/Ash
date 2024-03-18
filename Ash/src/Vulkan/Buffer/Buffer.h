@@ -43,7 +43,7 @@ namespace Ash::Vulkan
 		void Map(uint32_t offset = 0);
 		void Unmap();
 
-		void WriteToDescriptor(VkDescriptorType type, const Descriptor& descriptor);
+		VkDescriptorBufferInfo GetDescriptorBufferInfo() const;
 
 		// TODO: is this good?
 		VkBuffer* Pointer() { return &Handle; }

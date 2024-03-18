@@ -4,13 +4,13 @@
 
 namespace Ash::Vulkan::Utility
 {
-	Vulkan::Buffer CreateQuadVertexBuffer();
-	Vulkan::Buffer CreateQuadIndexBuffer();
-
 	struct QuadVertex
 	{
 		glm::vec2 Position;
 		glm::vec2 TexCoords;
+
+		static Vulkan::Buffer CreateVertexBuffer();
+		static Vulkan::Buffer CreateIndexBuffer();
 
 		static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
