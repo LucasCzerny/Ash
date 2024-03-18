@@ -1,66 +1,16 @@
-project "Ash"
-	kind "StaticLib"
-	language "C++"
-	cppdialect "C++17"
-	targetdir "bin/%{cfg.buildcfg}"
-	staticruntime "off"
+workspace "Ash"
+   architecture "x64"
+   configurations { "Debug", "Release", "Dist" }
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
+include "definitions.lua"
 
-	pchheader "pch.h"
-	pchsource "src/pch.cpp"
-	
-	externalwarnings "Off"
+group "External Libs"
+	include "vendor/entt"
+	include "vendor/glfw"
+	include "vendor/glm"
+	include "vendor/imgui"
+	include "vendor/stb"
+	include "vendor/tinygltf"
+group ""
 
-	files 
-	{
-		"src/**.h", "src/**.cpp", "src/**.inl"
-	}
-	
-	includedirs
-	{
-		"src",
-
-		"%{IncludeDir.vulkan}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.glfw}",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.imgui}",
-		"%{IncludeDir.stb}",
-		"%{IncludeDir.tinygltf}"
-	}
-	
-	libdirs
-	{
-		"%{VulkanLibraryDir}"
-	}
-	
-	links
-	{
-		"%{VulkanLibrary}",
-		"GLFW",
-		"ImGui"
-	}
-	
-	filter "system:windows"
-		systemversion "latest"
-		defines { "ASH_PLATFORM_WINDOWS" }
-		prebuildcommands { "..\\scripts\\CompileAllShaders.bat" }
-
-	filter "configurations:Debug"
-		defines { "ASH_DEBUG" }
-		runtime "Debug"
-		symbols "On"
-
-	filter "configurations:Release"
-		defines { "ASH_RELEASE" }
-		runtime "Release"
-		optimize "On"
-		symbols "On"
-
-	filter "configurations:Dist"
-		defines { "ASH_DIST" }
-		runtime "Release"
-		optimize "On"
-		symbols "Off"
+include "Ash"
