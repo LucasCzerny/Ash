@@ -5,8 +5,8 @@ project "Ash"
 	targetdir "bin/%{cfg.buildcfg}"
 	staticruntime "off"
 
-	targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("../bin/" .. Ash_outputdir .. "/%{prj.name}")
+	objdir ("../bin-int/" .. Ash_outputdir .. "/%{prj.name}")
 
 	pchheader "pch.h"
 	pchsource "src/pch.cpp"
@@ -22,23 +22,23 @@ project "Ash"
 	{
 		"src",
 
-		"%{IncludeDir.vulkan}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.glfw}",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.imgui}",
-		"%{IncludeDir.stb}",
-		"%{IncludeDir.tinygltf}"
+		"%{Ash_IncludeDir.vulkan}",
+		"%{Ash_IncludeDir.entt}",
+		"%{Ash_IncludeDir.glfw}",
+		"%{Ash_IncludeDir.glm}",
+		"%{Ash_IncludeDir.imgui}",
+		"%{Ash_IncludeDir.stb}",
+		"%{Ash_IncludeDir.tinygltf}"
 	}
 	
 	libdirs
 	{
-		"%{VulkanLibraryDir}"
+		"%{Ash_VulkanLibraryDir}"
 	}
 	
 	links
 	{
-		"%{VulkanLibrary}",
+		"%{Ash_VulkanLibrary}",
 		"GLFW",
 		"ImGui"
 	}

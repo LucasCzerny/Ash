@@ -1,1 +1,1 @@
-IncludeDir["glm"] = "../vendor/glm/glm/"
+Ash_IncludeDir["glm"] = "../vendor/glm/glm/"

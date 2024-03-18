@@ -1,12 +1,12 @@
-IncludeDir["imgui"] = "../vendor/imgui/imgui/"
+Ash_IncludeDir["imgui"] = "../vendor/imgui/imgui/"
 
 project "ImGui"
 	kind "StaticLib"
 	language "C++"
 	staticruntime "off"
 	
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. Ash_outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. Ash_outputdir .. "/%{prj.name}")
 	
 	files
 	{
@@ -22,7 +22,7 @@ project "ImGui"
 
 	includedirs
 	{
-		"%{IncludeDir.vulkan}",
+		"%{Ash_IncludeDir.vulkan}",
 		"imgui",
 		"../glfw/glfw/include"
 	}
