@@ -3,8 +3,8 @@
 
 #include "Core/Assert.h"
 
-#include "Vulkan/Defaults.h"
 #include "Vulkan/Context/Context.h"
+#include "Vulkan/Defaults/Defaults.h"
 
 #include "Vulkan/Utility/Commands/SingleTimeCommands.h"
 

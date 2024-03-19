@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Device.h"
 
-#include "Vulkan/Defaults.h"
 #include "Vulkan/Context/Context.h"
+#include "Vulkan/Defaults/Defaults.h"
 
 namespace Ash::Vulkan
 {
@@ -119,7 +119,10 @@ namespace Ash::Vulkan
 
     bool Device::IsDeviceSuitable(VkPhysicalDevice device)
     {
-        return SwapChainSupport.IsComplete() && SupportsRequiredExtensions(device) && SupportsAnisotropicSampling(device);
+        static Config& config = Config::Get();
+
+        bool suitable = SwapChainSupport.IsComplete() && SupportsRequiredExtensions(device);
+        suitable &= (!config.AnisotropicSampling || SupportsAnisotropicSampling(device));
     }
 
     bool Device::SupportsRequiredExtensions(VkPhysicalDevice device)

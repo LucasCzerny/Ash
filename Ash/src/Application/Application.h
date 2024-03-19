@@ -3,11 +3,10 @@
 #include "Layer.h"
 
 #include "Config/Config.h"
+#include "Scene/Scene.h"
 
 #include "Events/Event.h"
 #include "Events/WindowEvents.h"
-
-#include "Scene/Scene.h"
 
 #include "Vulkan/Context/Context.h"
 

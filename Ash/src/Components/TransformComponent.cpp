@@ -23,6 +23,7 @@ namespace Ash
 	}
 
 	glm::vec3 TransformComponent::GetForwardDirection()
+
 	{
 		return glm::rotate(glm::quat(Rotation), glm::vec3(0.0f, 0.0f, -1.0f));
 	}

@@ -1,17 +1,17 @@
 #include "pch.h"
 #include "Context.h"
 
+#include "Application/Application.h"
+
 #include "Core/Assert.h"
 #include "Core/ErrorCallbacks.h"
 
-#include "Application/Application.h"
-
-#include "Events/WindowEvents.h"
-
-#include "Vulkan/Defaults.h"
+#include "Vulkan/Defaults/Defaults.h"
 #include "Vulkan/Device/Device.h"
 #include "Vulkan/Window/Window.h"
 #include "Vulkan/SwapChain/SwapChain.h"
+
+#include "Events/WindowEvents.h"
 
 namespace Ash::Vulkan
 {

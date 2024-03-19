@@ -2,6 +2,7 @@
 #include "PipelineConfig.h"
 
 #include "Vulkan/Context/Context.h"
+
 #include "Vulkan/Utility/Shapes/Quad.h"
 
 namespace Ash::Vulkan

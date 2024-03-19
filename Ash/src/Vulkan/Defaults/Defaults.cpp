@@ -84,6 +84,7 @@ namespace Ash::Vulkan
 	VkDeviceCreateInfo Defaults()
 	{
 		static Context& context = Context::Get();
+		static Config& config = Config::Get();
 
 		static VkDeviceCreateInfo info;
 
@@ -102,7 +103,7 @@ namespace Ash::Vulkan
 
 		static VkPhysicalDeviceFeatures physicalDeviceFeatures;
 		vkGetPhysicalDeviceFeatures(context.Device, &physicalDeviceFeatures);
-		physicalDeviceFeatures.samplerAnisotropy = VK_TRUE;
+		physicalDeviceFeatures.samplerAnisotropy = config.SamplerAnisotropy;
 
 		info.pEnabledFeatures = &physicalDeviceFeatures;
 

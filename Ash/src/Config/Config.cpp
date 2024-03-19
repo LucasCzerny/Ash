@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Config.h"
 
-#include "Core/ErrorCallbacks.h"
-
 #include "Application/Application.h"
+
+#include "Core/ErrorCallbacks.h"
 
 namespace Ash
 {

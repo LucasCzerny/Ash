@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "Instance.h"
 
-#include "Core/Assert.h"
-
 #include "Config/Config.h"
+
+#include "Core/Assert.h"
 
 #include "Vulkan/Context/Context.h"
 

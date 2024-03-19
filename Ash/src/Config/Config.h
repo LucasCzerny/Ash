@@ -27,6 +27,8 @@ namespace Ash
 		uint32_t MaxNumberOfMaterials = 10000;
 		uint32_t MaxNumberOfLights = 64;
 
+		bool AnisotropicSampling = true;
+
 	public:
 		static Config& Get();
 	
