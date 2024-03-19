@@ -21,6 +21,9 @@ namespace Ash::Vulkan
 
 	public:
 		Texture() = default;
+		Texture(VkImage image, VkImageView view, VkDeviceMemory memory, uint32_t width, uint32_t height, VkFormat format)
+			: Image(image), View(view), Memory(memory), Width(width), Height(height), Extent2D{ width, height }, Extent3D{ width, height, 1 }, Format(format) {}
+
 		Texture(VkImageCreateInfo imageInfo, VkImageViewCreateInfo viewInfo = DefaultImageView(), VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		Texture(const unsigned char* pixels, uint32_t width, uint32_t height, uint32_t channels, bool srgb = false, VkImageViewCreateInfo viewInfo = DefaultImageView());
 

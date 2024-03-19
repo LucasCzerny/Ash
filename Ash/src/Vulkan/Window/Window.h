@@ -29,8 +29,6 @@ namespace Ash::Vulkan
 		void Resize(uint32_t width, uint32_t height);
 
 		glm::vec2 GetSize() const { return glm::vec2{ Width, Height }; }
-		VkExtent2D GetExtent2D() const { return VkExtent2D{ Width, Height }; }
-		VkExtent3D GetExtent3D() const { return VkExtent3D{ Width, Height, 0 }; }
 
 		operator GLFWwindow*() const { return Handle; }
 	};
