@@ -1,0 +1,1 @@
+Ash_IncludeDir["tinygltf"] = "../vendor/tinygltf/tinygltf"

@@ -1,0 +1,1 @@
+Ash_IncludeDir["stb"] = "../vendor/stb/stb/"
