@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Context.h"
 
-#include "Application/Application.h"
+#include "Events/EventDispatcher.h"
 
 #include "Core/Assert.h"
 #include "Core/ErrorCallbacks.h"
@@ -30,6 +30,8 @@ namespace Ash::Vulkan
 	Context::~Context()
     {
         glfwTerminate();
+		{
+
 
         if (Config::Get().EnableValidationLayers)
         {
@@ -45,7 +47,7 @@ namespace Ash::Vulkan
 	}
 
 	VkCommandBuffer Context::GetNextCommandBuffer()
-	{
+	{Application::DispatchEvent
 		static uint32_t index = 0;
 
 		uint32_t currentIndex = index;
@@ -109,7 +111,7 @@ namespace Ash::Vulkan
 		glfwSetWindowSizeCallback(Window, [](GLFWwindow* window, int width, int height)
 		{
 			WindowResizeEvent event(width, height);
-			Application::DispatchEvent(event);
+			EventDispatcher::Dispatch(event);
 		});
 	}
 }
