@@ -18,6 +18,8 @@ namespace Ash::Vulkan
 		std::vector<VkFramebuffer> Framebuffers;
 		
 	public:
+		Pipeline() = default;
+
 		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);
 		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction);
 		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);

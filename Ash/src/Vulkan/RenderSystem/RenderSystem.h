@@ -11,6 +11,8 @@ namespace Ash::Vulkan
 	class RenderSystem
 	{
 	public:
+		RenderSystem() = default;
+
 		RenderSystem(const std::vector<Pipeline>& pipelines);
 		~RenderSystem();
 		

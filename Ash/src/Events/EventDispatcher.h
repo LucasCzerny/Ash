@@ -6,8 +6,13 @@ namespace Ash
 {
 	struct EventFunction
 	{
+	public:
 		std::function<bool(Event&)> Function;
-		int Precendence = 0;
+		int Precedence = 0;
+
+	public:
+		EventFunction(std::function<bool(Event&)> function, int precedence = 0)
+			: Function(function), Precedence(precedence) {}
 
 		bool Call(Event& event);
 
