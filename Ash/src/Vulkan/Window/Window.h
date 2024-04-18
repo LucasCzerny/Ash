@@ -20,15 +20,13 @@ namespace Ash::Vulkan
 		Window();
 		~Window();
 
-		// Not copyable or moveable
-		Window(const Window&) = delete;
-		void operator=(const Window&) = delete;
-		Window(Window&&) = delete;
-		Window& operator=(Window&&) = delete;
-
+		// TODO: group setter and getter
 		void Resize(uint32_t width, uint32_t height);
-
 		glm::vec2 GetSize() const { return glm::vec2{ Width, Height }; }
+
+		bool IsOpen() const { return !glfwWindowShouldClose(Handle); }
+
+		float GetDeltaTime() const;
 
 		operator GLFWwindow*() const { return Handle; }
 	};

@@ -40,4 +40,15 @@ namespace Ash::Vulkan
 
 		LastResizeTime = (float)glfwGetTime();
 	}
+
+	float Window::GetDeltaTime() const
+	{
+		static float lastTime = 0.0f;
+
+		float time = (float)glfwGetTime();
+		float deltaTime = time - lastTime;
+		lastTime = time;
+
+		return deltaTime;
+	}
 }

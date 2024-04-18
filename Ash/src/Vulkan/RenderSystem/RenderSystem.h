@@ -14,12 +14,6 @@ namespace Ash::Vulkan
 		RenderSystem(const std::vector<Pipeline>& pipelines);
 		~RenderSystem();
 		
-		// Not copyable or moveable
-		RenderSystem(const RenderSystem&) = delete;
-		void operator=(const RenderSystem&) = delete;
-		RenderSystem(RenderSystem&&) = delete;
-		RenderSystem& operator=(RenderSystem&&) = delete;
-
 		void DrawScene(Scene& scene = Scene());
 
 	private:

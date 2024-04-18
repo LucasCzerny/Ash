@@ -9,7 +9,7 @@ namespace Ash::Vulkan::Utility
 		glm::vec2 Position;
 		glm::vec2 TexCoords;
 
-		static Vulkan::Buffer CreateVertexBuffer();
+		static std::array<Vulkan::Buffer, 2> CreateVertexBuffers();
 		static Vulkan::Buffer CreateIndexBuffer();
 
 		static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();

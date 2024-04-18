@@ -4,45 +4,85 @@
 namespace Ash::Vulkan::Utility
 {
 	// TODO: add usage flags and memory property flags to the constructor
-	Buffer CubeVertex::CreateVertexBuffer()
+	std::array<Buffer, 2> CubeVertex::CreateVertexBuffers()
 	{
-		static std::array<float, 24 * (3 + 2)> vertices = {
-			-0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+		static std::array<float, 24 * 3> positions = {
+			-0.5f,  0.5f, -0.5f,
+			-0.5f, -0.5f, -0.5f,
+			 0.5f, -0.5f, -0.5f,
+			 0.5f,  0.5f, -0.5f,
 
-			-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-			-0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-			-0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,
+			-0.5f, -0.5f, -0.5f,
+			-0.5f,  0.5f, -0.5f,
+			-0.5f,  0.5f,  0.5f,
 
-			 0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-			 0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-			 0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,
+			 0.5f, -0.5f,  0.5f,
+			 0.5f,  0.5f,  0.5f,
+			 0.5f,  0.5f, -0.5f,
 
-			-0.5f, -0.5f,  0.5f, 0.0f, 0.0f,
-			-0.5f,  0.5f,  0.5f, 1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-			 0.5f, -0.5f,  0.5f, 0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,
+			-0.5f,  0.5f,  0.5f,
+			 0.5f,  0.5f,  0.5f,
+			 0.5f, -0.5f,  0.5f,
 
-			-0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
-			 0.5f,  0.5f, -0.5f, 1.0f, 0.0f,
-			 0.5f,  0.5f,  0.5f, 1.0f, 1.0f,
-			-0.5f,  0.5f,  0.5f, 0.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f,
+			 0.5f,  0.5f, -0.5f,
+			 0.5f,  0.5f,  0.5f,
+			-0.5f,  0.5f,  0.5f,
 
-			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-			-0.5f, -0.5f,  0.5f, 1.0f, 0.0f,
-			 0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-			-0.5f, -0.5f,  0.5f, 0.0f, 1.0f
+			-0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f,  0.5f,
+			 0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f,  0.5f,
 		};
 
-		return Buffer(
-			vertices,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-		);
+		static std::array<float, 24 * 2> texCoords = {
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f
+		};
+
+		return {
+			Buffer(
+				positions,
+				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			),
+
+			Buffer(
+				texCoords,
+				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			)
+		};
 	}
 
 	Buffer CubeVertex::CreateIndexBuffer()
@@ -78,14 +118,14 @@ namespace Ash::Vulkan::Utility
 	{
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
 
-		// Position
+		// Positions
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
 		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(CubeVertex, Position);
 
 		// TexCoords
-		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].binding = 1;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
 		attributeDescriptions[1].offset = offsetof(CubeVertex, TexCoords);
