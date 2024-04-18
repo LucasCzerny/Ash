@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Config.h"
 
-#include "Application/Application.h"
-
 #include "Core/ErrorCallbacks.h"
 
 namespace Ash
@@ -13,9 +11,12 @@ namespace Ash
         return config;
 	}
 
+    // TODO: defaults
 	VkDebugUtilsMessengerCreateInfoEXT Config::GetDebugMessengerInfo()
 	{
-        static VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{}; debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        static VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+        
+        debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 
         // Call the callback for messages of any severity and any type
         debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |

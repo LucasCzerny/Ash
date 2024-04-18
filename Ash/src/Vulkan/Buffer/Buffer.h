@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Vulkan/Descriptor/Descriptor.h"
-
 namespace Ash::Vulkan
 {
 	class Context;
@@ -27,7 +25,7 @@ namespace Ash::Vulkan
 		Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
 		Buffer(VkDeviceSize instanceSize, uint32_t instanceCount, void* data, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1);
 		
-		template <typename Type>
+		template <typename Type> 
 		Buffer(const std::vector<Type>& vector, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize minOffsetAlignment = 1)
 			: Buffer(sizeof(Type), vector.size(), (void*)vector.data(), usageFlags, memoryPropertyFlags, minOffsetAlignment) {}
 
@@ -69,5 +67,3 @@ namespace Ash::Vulkan
 		VkBufferUsageFlagBits GetUsageFromType(const BufferType& type);
 	};
 }
-
-#include "Buffer.inl"

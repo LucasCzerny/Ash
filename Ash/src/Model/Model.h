@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vulkan/Buffer/Buffer.h"
+#include "Vulkan/Descriptor/Descriptor.h"
 
 namespace Ash
 {

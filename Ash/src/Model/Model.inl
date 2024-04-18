@@ -12,7 +12,7 @@ namespace Ash
 			*countOut = accessor.count;
 		}
 
-		const IndexType* indexPointer = &buffer.data[accessor.byteOffset + bufferView.byteOffset];
+		const IndexType* indexPointer = (const IndexType*)&buffer.data[accessor.byteOffset + bufferView.byteOffset];
 
 		for (size_t i = 0; i < accessor.count; i++)
 		{

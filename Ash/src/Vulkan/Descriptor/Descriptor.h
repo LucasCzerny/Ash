@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Model/Model.h"
-
 namespace Ash::Vulkan
 {
 	struct Descriptor

@@ -9,7 +9,7 @@
 #include "Components/TagComponent.h"
 #include "Components/TransformComponent.h"
 
-namespace AshCamera
+namespace Ash
 {
 	Scene::~Scene()
 	{
@@ -36,22 +36,11 @@ namespace AshCamera
 				component.OnUpdate(deltaTime);
 			});
 		}
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
 	}
 
 	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
 	std::vector<Entity> Scene::GetAllEntities()
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis
 	{
-	// TODO: add lights and maybe use transform component in getcameraentiteis
 		return GetEntitiesWithComponents<TagComponent>();
 	}
 
@@ -70,5 +59,3 @@ namespace AshCamera
 		return GetEntitiesWithComponents<LightComponent>();
 	}
 }
-	// TODO: add lights and maybe use transform component in getcameraentiteis
-	// TODO: add lights and maybe use transform component in getcameraentiteis

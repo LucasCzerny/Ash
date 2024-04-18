@@ -1,4 +1,4 @@
-#include "pch.h"m_BufferType
+#include "pch.h"
 #include "Model.h"
 
 #include "Core/Assert.h"
@@ -44,6 +44,8 @@ namespace Ash
 
 			result[i] = Vulkan::Descriptor(layoutInfo);
 		}
+
+		return result;
 	}
 
 	std::array<Vulkan::DescriptorGroup, 5> Mesh::CreateDescriptorGroups(uint32_t count)
@@ -192,6 +194,7 @@ namespace Ash
 		tinygltf::Mesh& mesh = m_Model.meshes[node.mesh];
 		Mesh result;
 
+
 		for (tinygltf::Primitive& primitive : mesh.primitives)
 		{
 			size_t vertexCount;
@@ -271,6 +274,7 @@ namespace Ash
 		{
 			glm::vec3 scale = glm::make_vec3(node.scale.data());
 			transform = glm::scale(transform, scale);
+
 		}
 
 		if (node.matrix.size() == 16)
@@ -309,4 +313,3 @@ namespace Ash
 		return accessor.componentType;
 	}
 }
-

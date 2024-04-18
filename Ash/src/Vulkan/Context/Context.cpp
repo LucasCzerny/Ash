@@ -30,8 +30,6 @@ namespace Ash::Vulkan
 	Context::~Context()
     {
         glfwTerminate();
-		{
-
 
         if (Config::Get().EnableValidationLayers)
         {
@@ -47,7 +45,7 @@ namespace Ash::Vulkan
 	}
 
 	VkCommandBuffer Context::GetNextCommandBuffer()
-	{Application::DispatchEvent
+	{
 		static uint32_t index = 0;
 
 		uint32_t currentIndex = index;
