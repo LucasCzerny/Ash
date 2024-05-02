@@ -28,11 +28,15 @@ namespace Ash::Vulkan
 		Context();
 		~Context();
 
-		static Context& Get() { return s_Instance; }
+		Context(const Context&) = delete;
+		Context(Context&&) = delete;
+		void operator=(const Context&) = delete;
+		Context& operator=(Context&&) = delete;
 
+		static void Create();
+		static std::shared_ptr<Context> Get();
+		
 		void Resize(uint32_t width, uint32_t height);
-
-		VkCommandBuffer GetNextCommandBuffer();
 
 		template <typename T>
 		T GetExtensionFunction(const std::string& name);
@@ -40,7 +44,7 @@ namespace Ash::Vulkan
 	private:
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 
-		static Context s_Instance;
+		static std::shared_ptr<Context> s_Instance;
 
 	private:
 		void CreateCommandPool();

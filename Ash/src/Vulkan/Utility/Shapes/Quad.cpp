@@ -50,30 +50,34 @@ namespace Ash::Vulkan::Utility
 
 	std::vector<VkVertexInputBindingDescription> QuadVertex::GetBindingDescriptions()
 	{
-		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+		static std::vector<VkVertexInputBindingDescription> bindingDescriptions(2);
 
 		bindingDescriptions[0].binding = 0;
-		bindingDescriptions[0].stride = sizeof(QuadVertex);
+		bindingDescriptions[0].stride = sizeof(glm::vec2);
 		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		bindingDescriptions[1].binding = 1;
+		bindingDescriptions[1].stride = sizeof(glm::vec2);
+		bindingDescriptions[1].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		return bindingDescriptions;
 	}
 
 	std::vector<VkVertexInputAttributeDescription> QuadVertex::GetAttributeDescriptions()
 	{
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+		static std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
 
 		// Positions
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
 		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[0].offset = offsetof(QuadVertex, Position);
+		attributeDescriptions[0].offset = 0;
 
 		// TexCoords
 		attributeDescriptions[1].binding = 1;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(QuadVertex, TexCoords);
+		attributeDescriptions[1].offset = 0;
 
 		return attributeDescriptions;
 	}

@@ -12,7 +12,7 @@ namespace Ash
 
 	bool EventFunction::Compare(const EventFunction& first, const EventFunction& second)
 	{
-		return first.Precendence >= second.Precendence;
+		return first.Precedence >= second.Precedence;
 	}
 
 	void EventDispatcher::Subscribe(const EventFunction& eventFunction)

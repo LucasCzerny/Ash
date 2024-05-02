@@ -4,10 +4,10 @@
 
 #include "Scene/Scene.h"
 
+#include "Vulkan/Context/Context.h"
+
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class Pipeline
 	{
 	public:
@@ -19,17 +19,20 @@ namespace Ash::Vulkan
 		
 	public:
 		Pipeline() = default;
+		Pipeline(VkPipeline handle, VkPipelineLayout layout, VkRenderPass renderPass, const std::vector<VkFramebuffer> framebuffers = {});
 
 		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);
 		Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction);
 		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction);
 		Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction);
 		
-		// Not copyable or moveable
-		// Pipeline(const Pipeline&) = delete;
-		// void operator=(const Pipeline&) = delete;
-		// Pipeline(Pipeline&&) noexcept {}
-		// Pipeline& operator=(Pipeline&&) noexcept {}
+		Pipeline(const Pipeline& pipeline);
+		Pipeline(Pipeline&& pipeline) noexcept;
+		Pipeline& operator=(const Pipeline& pipeline);
+		Pipeline& operator=(Pipeline&& pipeline) noexcept;
+
+		void Reset();
+		bool IsEmpty() const { return Handle == VK_NULL_HANDLE; }
 
 		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex, Scene& scene = Scene()) const;
 
@@ -38,6 +41,8 @@ namespace Ash::Vulkan
 	private:
 		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> m_RecordWithoutScene = nullptr;
 		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> m_RecordWithScene = nullptr;
+
+		std::shared_ptr<Context> m_Context = nullptr;
 
 	private:
 		void CreateGraphicsPipeline(const PipelineConfig& config);

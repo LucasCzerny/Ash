@@ -68,6 +68,7 @@ namespace Ash
 			result[i] = Vulkan::DescriptorGroup(layoutInfo, count);
 		}
 
+		return result;
 	}
 
 	void Mesh::CreateBuffers()

@@ -1,24 +1,23 @@
 #include "pch.h"
 #include "SwapChain.h"
 
-#include "Vulkan/Context/Context.h"
+#include "Core/Assert.h"
+
 #include "Vulkan/Defaults/Defaults.h"
-#include "Vulkan/Texture/Texture.h"
 
 namespace Ash::Vulkan
 {
-	SwapChain::SwapChain()
-	{	
+	SwapChain::SwapChain(Device& device, Window& window)
+		: m_Device(device), m_Window(window)
+	{
 		Recreate();
 	}
 
 	void SwapChain::Recreate()
 	{
-		static Context& context = Context::Get();
-
 		m_OldSwapChain = Handle;
 
-		vkDeviceWaitIdle(context.Device);
+		vkDeviceWaitIdle(m_Device);
 
 		ChooseSwapChainSpecification();
 
@@ -30,25 +29,23 @@ namespace Ash::Vulkan
 
 	void SwapChain::ChooseSwapChainSpecification()
 	{
-		static Context& context = Context::Get();
-
-		VkExtent2D windowExtent = context.Window.Extent2D;
+		VkExtent2D windowExtent = m_Window.Extent2D;
 
 		while (windowExtent.width == 0 || windowExtent.height == 0)
 		{
-			windowExtent = context.Window.Extent2D;
+			windowExtent = m_Window.Extent2D;
 			glfwWaitEvents();
 		}
 
-		DeviceSwapChainSupport supportDetails = context.Device.SwapChainSupport;
+		DeviceSwapChainSupport supportDetails = m_Device.SwapChainSupport;
 
 		Extent2D = ChooseExtent(supportDetails.Capabilities, windowExtent);
 		Extent3D = { Extent2D.width, Extent3D.height, 1 };
 		PresentMode = ChoosePresentMode(supportDetails.PresentModes);
 		SurfaceFormat = ChooseSwapChainSurfaceFormat(supportDetails.SurfaceFormats);
 
-		uint32_t imageCount = context.Device.SwapChainSupport.Capabilities.minImageCount + 1;
-		uint32_t maxImageCount = context.Device.SwapChainSupport.Capabilities.maxImageCount;
+		uint32_t imageCount = m_Device.SwapChainSupport.Capabilities.minImageCount + 1;
+		uint32_t maxImageCount = m_Device.SwapChainSupport.Capabilities.maxImageCount;
 
 		if (maxImageCount > 0 && imageCount > maxImageCount)
 		{
@@ -64,7 +61,7 @@ namespace Ash::Vulkan
 		for (VkFormat format : depthFormats)
 		{
 			VkFormatProperties formatProperties;
-			vkGetPhysicalDeviceFormatProperties(context.Device, format, &formatProperties);
+			vkGetPhysicalDeviceFormatProperties(m_Device, format, &formatProperties);
 
 			if (formatProperties.optimalTilingFeatures & formatFeatures)
 			{
@@ -118,13 +115,10 @@ namespace Ash::Vulkan
 
 	void SwapChain::CreateSwapChain()
 	{
-		static Context& context = Context::Get();
-		static Device& device = context.Device;
-
 		VkSwapchainCreateInfoKHR createInfo = Defaults<VkSwapchainCreateInfoKHR>();
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		if (device.GraphicsQueue.Family == device.PresentQueue.Family)
+		if (m_Device.GraphicsQueue.Family == m_Device.PresentQueue.Family)
 		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			createInfo.queueFamilyIndexCount = 0;
@@ -132,7 +126,7 @@ namespace Ash::Vulkan
 		}
 		else
 		{
-			uint32_t queueFamilyIndices[2] = { device.GraphicsQueue.Family, device.PresentQueue.Family };
+			uint32_t queueFamilyIndices[2] = { m_Device.GraphicsQueue.Family, m_Device.PresentQueue.Family };
 
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
@@ -141,41 +135,29 @@ namespace Ash::Vulkan
 
 		createInfo.oldSwapchain = m_OldSwapChain;
 
-		VkResult result = vkCreateSwapchainKHR(context.Device, &createInfo, nullptr, &Handle);
+		VkResult result = vkCreateSwapchainKHR(m_Device, &createInfo, nullptr, &Handle);
 	}
 
 	void SwapChain::CreateSwapChainImages()
 	{
-		static Context& context = Context::Get();
-
-		vkGetSwapchainImagesKHR(context.Device, Handle, &ImageCount, nullptr);
+		vkGetSwapchainImagesKHR(m_Device, Handle, &ImageCount, nullptr);
 
 		std::vector<VkImage> imageHandles(ImageCount);
-		VkResult result = vkGetSwapchainImagesKHR(context.Device, Handle, &ImageCount, imageHandles.data());
+		VkResult result = vkGetSwapchainImagesKHR(m_Device, Handle, &ImageCount, imageHandles.data());
 
 		ASSERT(result == VK_SUCCESS, "Failed to get the swap chain images.");
 
 		for (uint32_t i = 0; i < ImageCount; i++)
 		{
-			Images.emplace_back(imageHandles[i], SurfaceFormat.format, Extent2D);
+			Images.emplace_back(imageHandles[i], SurfaceFormat.format);
 		}
 	}
 
 	void SwapChain::CreateDepthResources()
 	{
-		static Context& context = Context::Get();
-
 		for (uint32_t i = 0; i < ImageCount; i++)
 		{
-			VkImageCreateInfo imageInfo = Defaults<VkImageCreateInfo>();
-			imageInfo.format = DepthFormat;
-			imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-			VkImageViewCreateInfo viewInfo = Defaults<VkImageViewCreateInfo>();
-			viewInfo.format = DepthFormat;
-			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-
-			DepthImages.emplace_back(imageInfo, viewInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			DepthImages.emplace_back(DepthFormat);
 		}
 	}
 }

@@ -15,9 +15,10 @@
 
 namespace Ash::Vulkan
 {
-	Context Context::s_Instance;
+	std::shared_ptr<Context> Context::s_Instance = nullptr;
 
 	Context::Context()
+		: Window(Instance), Device(Instance, Window.Surface), SwapChain(Device, Window)
 	{
 		CreateCommandPool();
 		CreateCommandBuffers();
@@ -38,20 +39,21 @@ namespace Ash::Vulkan
         }
     }
 
+	void Context::Create()
+	{
+		s_Instance = std::make_shared<Context>();
+	}
+
+	std::shared_ptr<Context> Context::Get()
+	{
+		ASSERT(s_Instance != nullptr, "You need to create a context before calling Get().");
+		return s_Instance;
+	}
+
 	void Context::Resize(uint32_t width, uint32_t height)
 	{
 		Window.Resize(width, height);
 		SwapChain.Recreate();
-	}
-
-	VkCommandBuffer Context::GetNextCommandBuffer()
-	{
-		static uint32_t index = 0;
-
-		uint32_t currentIndex = index;
-		index = (index + 1) % CommandBuffers.size();
-
-		return CommandBuffers[currentIndex];
 	}
 
     void Context::CreateCommandPool()
@@ -68,7 +70,9 @@ namespace Ash::Vulkan
 
 	void Context::CreateCommandBuffers()
 	{
-		CommandBuffers.resize(SwapChain.ImageCount);
+		static uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
+
+		CommandBuffers.resize(maxFramesInFlight);
 
 		VkCommandBufferAllocateInfo allocInfo = Defaults<VkCommandBufferAllocateInfo>();
 		allocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();

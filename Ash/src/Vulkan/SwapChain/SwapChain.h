@@ -1,10 +1,13 @@
 #pragma once
 
-#include "Vulkan/Texture/Texture.h"
-#include "Vulkan/Texture/SwapChainTexture.h"
+#include "Vulkan/Device/Device.h"
+#include "Vulkan/Texture/SwapChainTextures.h"
+#include "Vulkan/Window/Window.h"
 
 namespace Ash::Vulkan
 {
+	class Texture;
+
 	class SwapChain
 	{
 	public:
@@ -18,24 +21,29 @@ namespace Ash::Vulkan
 		VkFormat DepthFormat;
 
 		std::deque<SwapChainTexture> Images;
-		std::deque<Texture> DepthImages;
+		std::deque<SwapChainDepthTexture> DepthImages;
 		std::vector<VkFramebuffer> Framebuffers;
 
 	public:
-		SwapChain();
+		SwapChain(Device& device, Window& window);
 
-		// Not copyable or moveable
 		SwapChain(const SwapChain&) = delete;
-		void operator=(const SwapChain&) = delete;
 		SwapChain(SwapChain&&) = delete;
+		void operator=(const SwapChain&) = delete;
 		SwapChain& operator=(SwapChain&&) = delete;
 
 		void Recreate();
+
+		VkSwapchainKHR* Pointer() { return &Handle; }
+		const VkSwapchainKHR* Pointer() const { return (const VkSwapchainKHR*)&Handle; }
 
 		operator VkSwapchainKHR() const { return Handle; }
 
 	private:
 		VkSwapchainKHR m_OldSwapChain = VK_NULL_HANDLE;
+
+		Device& m_Device;
+		Window& m_Window;
 
 	private:
 		void ChooseSwapChainSpecification();

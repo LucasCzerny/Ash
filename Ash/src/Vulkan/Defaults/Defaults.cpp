@@ -20,7 +20,7 @@ namespace Ash::Vulkan
 	template<>
 	VkApplicationInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkApplicationInfo info;
 
@@ -38,7 +38,7 @@ namespace Ash::Vulkan
 	template<>
 	VkInstanceCreateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkInstanceCreateInfo info;
 
@@ -57,7 +57,7 @@ namespace Ash::Vulkan
 	template<>
 	VkDebugUtilsMessengerCreateInfoEXT Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkDebugUtilsMessengerCreateInfoEXT info;
 
@@ -83,7 +83,7 @@ namespace Ash::Vulkan
 	template<>
 	VkDeviceCreateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 		static Config& config = Config::Get();
 
 		static VkDeviceCreateInfo info;
@@ -102,7 +102,7 @@ namespace Ash::Vulkan
 		info.ppEnabledExtensionNames = deviceExtensions.data();
 
 		static VkPhysicalDeviceFeatures physicalDeviceFeatures;
-		vkGetPhysicalDeviceFeatures(context.Device, &physicalDeviceFeatures);
+		vkGetPhysicalDeviceFeatures(context->Device, &physicalDeviceFeatures);
 		physicalDeviceFeatures.samplerAnisotropy = config.AnisotropicSampling;
 
 		info.pEnabledFeatures = &physicalDeviceFeatures;
@@ -132,13 +132,13 @@ namespace Ash::Vulkan
 	template<>
 	VkCommandBufferAllocateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkCommandBufferAllocateInfo info;
 
 		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		info.pNext = nullptr;
-		info.commandPool = context.CommandPool;
+		info.commandPool = context->CommandPool;
 		info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		info.commandBufferCount = 0; // REQUIRED
 
@@ -163,7 +163,7 @@ namespace Ash::Vulkan
 	template<>
 	VkImageCreateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkImageCreateInfo info;
 		info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -173,7 +173,7 @@ namespace Ash::Vulkan
 		info.imageType = VK_IMAGE_TYPE_2D;
 		info.format = VK_FORMAT_R8G8B8A8_UNORM;
 
-		VkExtent2D extent = context.SwapChain.Extent2D;
+		VkExtent2D extent = context->SwapChain.Extent2D;
 		info.extent.width = extent.width;
 		info.extent.height = extent.height;
 		info.extent.depth = 1;
@@ -185,7 +185,7 @@ namespace Ash::Vulkan
 		info.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
 		info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		std::array<uint32_t, 2> queueFamilies = { context.Device.GraphicsQueue.Family, context.Device.PresentQueue.Family };
+		std::array<uint32_t, 2> queueFamilies = { context->Device.GraphicsQueue.Family, context->Device.PresentQueue.Family };
 		info.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
 		info.pQueueFamilyIndices = queueFamilies.data();
 
@@ -197,7 +197,7 @@ namespace Ash::Vulkan
 	template<>
 	VkImageViewCreateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkImageViewCreateInfo info;
 		info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -220,7 +220,7 @@ namespace Ash::Vulkan
 	template<>
 	VkMemoryAllocateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkMemoryAllocateInfo info;
 		info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -280,29 +280,29 @@ namespace Ash::Vulkan
 	template<>
 	VkSwapchainCreateInfoKHR Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkSwapchainCreateInfoKHR info;
 
 		info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		info.pNext = nullptr;
 		info.flags = NULL;
-		info.surface = context.Window.Surface;
-		info.minImageCount = context.SwapChain.ImageCount;
-		info.imageFormat = context.SwapChain.SurfaceFormat.format;
-		info.imageColorSpace = context.SwapChain.SurfaceFormat.colorSpace;
-		info.imageExtent = context.Window.Extent2D; // REQUIRED 
+		info.surface = context->Window.Surface;
+		info.minImageCount = context->SwapChain.ImageCount;
+		info.imageFormat = context->SwapChain.SurfaceFormat.format;
+		info.imageColorSpace = context->SwapChain.SurfaceFormat.colorSpace;
+		info.imageExtent = context->Window.Extent2D; // REQUIRED 
 		info.imageArrayLayers = 1;
 		info.imageUsage = VK_IMAGE_USAGE_SAMPLED_BIT; // LIKELY NEEDS TO BE CHANGED
 		info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 
-		std::array<uint32_t, 2> queueFamilies = { context.Device.GraphicsQueue.Family, context.Device.PresentQueue.Family };
+		std::array<uint32_t, 2> queueFamilies = { context->Device.GraphicsQueue.Family, context->Device.PresentQueue.Family };
 		info.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
 		info.pQueueFamilyIndices = queueFamilies.data();
 
-		info.preTransform = context.Device.SwapChainSupport.Capabilities.currentTransform;
+		info.preTransform = context->Device.SwapChainSupport.Capabilities.currentTransform;
 		info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		info.presentMode = context.SwapChain.PresentMode;
+		info.presentMode = context->SwapChain.PresentMode;
 		info.clipped = VK_TRUE;
 		info.oldSwapchain = nullptr; // LIKELY NEEDS TO BE SET
 
@@ -326,7 +326,7 @@ namespace Ash::Vulkan
 	template<>
 	VkFramebufferCreateInfo Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkFramebufferCreateInfo info;
 
@@ -336,8 +336,8 @@ namespace Ash::Vulkan
 		info.renderPass = VK_NULL_HANDLE; // REQUIRED
 		info.attachmentCount = 0;
 		info.pAttachments = nullptr;
-		info.width = context.SwapChain.Extent2D.width;
-		info.height = context.SwapChain.Extent2D.height;
+		info.width = context->SwapChain.Extent2D.width;
+		info.height = context->SwapChain.Extent2D.height;
 		info.layers = 1;
 
 		return info;
@@ -379,7 +379,7 @@ namespace Ash::Vulkan
 	template<>
 	VkPresentInfoKHR Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkPresentInfoKHR info;
 
@@ -388,7 +388,7 @@ namespace Ash::Vulkan
 		info.waitSemaphoreCount = 0; // REQUIRED
 		info.pWaitSemaphores = nullptr; // REQUIRED
 		info.swapchainCount = 1;
-		info.pSwapchains = &context.SwapChain.Handle;
+		info.pSwapchains = context->SwapChain.Pointer();
 		info.pImageIndices = 0; // REQUIRED
 		info.pResults = nullptr;
 
@@ -432,12 +432,12 @@ namespace Ash::Vulkan
 	template<>
 	VkAttachmentDescription Defaults()
 	{
-		static Context& context = Context::Get();
+		static std::shared_ptr<Context> context = Context::Get();
 		
 		static VkAttachmentDescription info;
 
 		info.flags = NULL;
-		info.format = context.SwapChain.SurfaceFormat.format; // REQUIRED
+		info.format = context->SwapChain.SurfaceFormat.format; // REQUIRED
 		info.samples = VK_SAMPLE_COUNT_1_BIT;
 		info.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		info.storeOp = VK_ATTACHMENT_STORE_OP_STORE;

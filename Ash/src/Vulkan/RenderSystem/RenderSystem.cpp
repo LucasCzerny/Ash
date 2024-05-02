@@ -8,10 +8,8 @@
 
 namespace Ash::Vulkan
 {
-	static Context& context = Context::Get();
-
 	RenderSystem::RenderSystem(const std::vector<Pipeline>& pipelines)
-		: m_Pipelines(pipelines)
+		: m_Context(Context::Get()), m_Pipelines(pipelines)
 	{
 		CreateSyncObjects();
 	}
@@ -22,9 +20,9 @@ namespace Ash::Vulkan
 
 		for (uint32_t i = 0; i < maxFramesInFlight; i++)
 		{
-			vkDestroySemaphore(context.Device, m_RenderingFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(context.Device, m_ImageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(context.Device, m_InFlightFences[i], nullptr);
+			vkDestroySemaphore(m_Context->Device, m_RenderingFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(m_Context->Device, m_ImageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(m_Context->Device, m_InFlightFences[i], nullptr);
 		}
 	}
 
@@ -33,20 +31,20 @@ namespace Ash::Vulkan
 		static const uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
 		static uint32_t currentFrame = 0;
 
-		VkCommandBuffer commandBuffer = context.CommandBuffers[currentFrame];
+		vkWaitForFences(m_Context->Device, 1, &m_InFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+		vkResetFences(m_Context->Device, 1, &m_InFlightFences[currentFrame]);
+		
+		VkCommandBuffer commandBuffer = m_Context->CommandBuffers[currentFrame];
 		uint32_t imageIndex = AquireNextImage(currentFrame);
 
 		if (imageIndex == UINT32_MAX)
 		{
-			context.SwapChain.Recreate();
+			m_Context->SwapChain.Recreate();
 			OnSwapChainRecreation();
 
 			Log::Info("Swap Chain is being recreated because it was out of date.");
 			return;
 		}
-
-		vkWaitForFences(context.Device, 1, &m_InFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-		vkResetFences(context.Device, 1, &m_InFlightFences[currentFrame]);
 
 		for (const Pipeline& pipeline : m_Pipelines)
 		{
@@ -57,7 +55,7 @@ namespace Ash::Vulkan
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
-			context.SwapChain.Recreate();
+			m_Context->SwapChain.Recreate();
 			OnSwapChainRecreation();
 
 			Log::Info("Swap Chain is being recreated because it was out of date or suboptimal.");
@@ -77,7 +75,6 @@ namespace Ash::Vulkan
 		m_ImageAvailableSemaphores.resize(maxFramesInFlight);
 		m_RenderingFinishedSemaphores.resize(maxFramesInFlight);
 		m_InFlightFences.resize(maxFramesInFlight);
-		// m_ImagesInFlight.resize(maxFramesInFlight);
 
 		VkSemaphoreCreateInfo semaphoreInfo = Defaults<VkSemaphoreCreateInfo>();
 
@@ -87,9 +84,9 @@ namespace Ash::Vulkan
 		for (uint32_t i = 0; i < maxFramesInFlight; i++)
 		{
 			VkResult result = (VkResult)(
-				vkCreateSemaphore(context.Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) +
-				vkCreateSemaphore(context.Device, &semaphoreInfo, nullptr, &m_RenderingFinishedSemaphores[i]) +
-				vkCreateFence(context.Device, &fenceInfo, nullptr, &m_InFlightFences[i])
+				vkCreateSemaphore(m_Context->Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) +
+				vkCreateSemaphore(m_Context->Device, &semaphoreInfo, nullptr, &m_RenderingFinishedSemaphores[i]) +
+				vkCreateFence(m_Context->Device, &fenceInfo, nullptr, &m_InFlightFences[i])
 			);
 
 			ASSERT(result == VK_SUCCESS, "Failed to create the synchronization objects.");
@@ -99,7 +96,7 @@ namespace Ash::Vulkan
 	uint32_t RenderSystem::AquireNextImage(uint32_t currentFrame)
 	{
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(context.Device, context.SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(m_Context->Device, m_Context->SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -111,6 +108,7 @@ namespace Ash::Vulkan
 		return imageIndex;
 	}
 
+	// TODO: weírd stuff with result
 	VkResult RenderSystem::SubmitCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex)
 	{
 		VkSubmitInfo submitInfo = Defaults<VkSubmitInfo>();
@@ -125,7 +123,7 @@ namespace Ash::Vulkan
 			submitInfo.pSignalSemaphores = &m_RenderingFinishedSemaphores[currentFrame];
 		}
 
-		VkResult result = vkQueueSubmit(context.Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[currentFrame]);
+		VkResult result = vkQueueSubmit(m_Context->Device.GraphicsQueue, 1, &submitInfo, m_InFlightFences[currentFrame]);
 		ASSERT(result == VK_SUCCESS, "Failed to submit a command buffer to the graphics queue.");
 
 		VkPresentInfoKHR presentInfo = Defaults<VkPresentInfoKHR>();
@@ -136,7 +134,7 @@ namespace Ash::Vulkan
 			presentInfo.pImageIndices = &imageIndex;
 		}
 
-		result = vkQueuePresentKHR(context.Device.GraphicsQueue, &presentInfo);
+		result = vkQueuePresentKHR(m_Context->Device.GraphicsQueue, &presentInfo);
 		
 		return result;
 	}

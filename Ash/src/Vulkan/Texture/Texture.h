@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vulkan/Buffer/Buffer.h"
+#include "Vulkan/Context/Context.h"
 
 namespace Ash::Vulkan
 {
@@ -29,9 +30,8 @@ namespace Ash::Vulkan
 		VkFormat Format = VK_FORMAT_UNDEFINED;
 
 	public:
-		Texture() = default;
-		Texture(VkImage image, VkImageView view, VkDeviceMemory memory, uint32_t width, uint32_t height, VkFormat format)
-			: Image(image), View(view), Memory(memory), Width(width), Height(height), Extent2D{ width, height }, Extent3D{ width, height, 1 }, Format(format) {}
+		Texture();
+		Texture(VkImage image, VkImageView view, VkDeviceMemory memory, uint32_t width, uint32_t height, VkFormat format);
 
 		Texture(const DefaultTexture& defaultTextureColor);
 
@@ -40,16 +40,26 @@ namespace Ash::Vulkan
 
 		~Texture();
 
-		// Not copyable or moveable
-		// Texture(const Texture&) = delete;
-		// void operator=(const Texture&) = delete;
-		// Texture(Texture&&) = delete;
-		// Texture& operator=(Texture&&) = delete;
+		Texture(const Texture& texture);
+		Texture(Texture&& texture) noexcept;
+		Texture& operator=(const Texture& texture);
+		Texture& operator=(Texture&& texture) noexcept;
+
+		void Reset();
+		bool IsEmpty() const { return Image == VK_NULL_HANDLE; }
 
 		void Transition(VkImageLayout from, VkImageLayout to, VkCommandBuffer commandBuffer = VK_NULL_HANDLE);
 		void CopyFromBuffer(const Buffer& buffer);
 
+		VkImage* Pointer() { return &Image; }
+		const VkImage* Pointer() const { return (const VkImage*)&Image; }
+
 		operator VkImage() const { return Image; }
+
+		operator bool() const { return IsEmpty(); }
+
+	private:
+		std::shared_ptr<Context> m_Context = nullptr;
 
 	private:
 		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);

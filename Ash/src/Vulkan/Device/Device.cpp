@@ -6,7 +6,8 @@
 
 namespace Ash::Vulkan
 {
-	Device::Device()
+	Device::Device(Instance& instance, VkSurfaceKHR surface)
+        : m_Instance(instance), m_Surface(surface)
 	{
         ChoosePhysicalDevice();
         ChooseLogicalDevice();
@@ -15,13 +16,11 @@ namespace Ash::Vulkan
 
     void Device::ChoosePhysicalDevice()
     {
-		static Context& context = Context::Get();
-
         uint32_t physicalDeviceCount;
-        vkEnumeratePhysicalDevices(context.Instance, &physicalDeviceCount, nullptr);
+        vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
 
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-        vkEnumeratePhysicalDevices(context.Instance, &physicalDeviceCount, physicalDevices.data());
+        vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, physicalDevices.data());
 
         Physical = VK_NULL_HANDLE;
 
@@ -45,8 +44,6 @@ namespace Ash::Vulkan
 
     std::array<uint32_t, 2> Device::GetQueueFamilies(VkPhysicalDevice device)
     {
-		static Context& context = Context::Get();
-
         std::array<uint32_t, 2> queueFamilies = { UINT32_MAX, UINT32_MAX };
 
         uint32_t queueFamilyCount;
@@ -72,7 +69,7 @@ namespace Ash::Vulkan
             }
 
             VkBool32 presentSupport = VK_FALSE;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, context.Window.Surface, &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &presentSupport);
 
             if (presentSupport)
             {
@@ -90,28 +87,26 @@ namespace Ash::Vulkan
 
     DeviceSwapChainSupport Device::QuerySwapChainSupport(VkPhysicalDevice device)
     {
-		static Context& context = Context::Get();
-
         DeviceSwapChainSupport support{};
 
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, context.Window.Surface, &support.Capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Surface, &support.Capabilities);
 
         uint32_t surfaceFormatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, context.Window.Surface, &surfaceFormatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &surfaceFormatCount, nullptr);
 
         if (surfaceFormatCount != 0)
         {
             support.SurfaceFormats.resize(surfaceFormatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, context.Window.Surface, &surfaceFormatCount, support.SurfaceFormats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &surfaceFormatCount, support.SurfaceFormats.data());
         }
 
         uint32_t presentModesCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, context.Window.Surface, &presentModesCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &presentModesCount, nullptr);
 
         if (presentModesCount != 0)
         {
             support.PresentModes.resize(presentModesCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, context.Window.Surface, &presentModesCount, support.PresentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &presentModesCount, support.PresentModes.data());
         }
 
         return support;

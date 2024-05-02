@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Vulkan/Context/Context.h"
+
 namespace Ash::Vulkan
 {
-	class Context;
-
 	enum class BufferType
 	{
 		VERTEX, INDEX,
@@ -43,6 +43,14 @@ namespace Ash::Vulkan
 
 		~Buffer();
 
+		Buffer(const Buffer& buffer);
+		Buffer(Buffer&& buffer) noexcept;
+		Buffer& operator=(const Buffer& buffer);
+		Buffer& operator=(Buffer&& buffer) noexcept;
+
+		void Reset();
+		bool IsEmpty() const { return Handle == VK_NULL_HANDLE; }
+
 		void CopyData(void* data);
 
 		void Map(uint32_t offset = 0);
@@ -50,20 +58,20 @@ namespace Ash::Vulkan
 
 		VkDescriptorBufferInfo GetDescriptorBufferInfo() const;
 
-		// TODO: is this good?
 		VkBuffer* Pointer() { return &Handle; }
 		const VkBuffer* Pointer() const { return (const VkBuffer*)&Handle; }
 
-		bool IsEmpty() const { return Handle == VK_NULL_HANDLE; };
-		operator bool() const { return !IsEmpty(); }
-
 		operator VkBuffer() const { return Handle; }
 
+		operator bool() const { return !IsEmpty(); }
+
+	private:
+		std::shared_ptr<Context> m_Context = nullptr;
+		
 	private:
 		VkDeviceSize GetAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
 		uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-	private:
 		VkBufferUsageFlagBits GetUsageFromType(const BufferType& type);
 	};
 }

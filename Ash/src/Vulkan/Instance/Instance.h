@@ -6,16 +6,14 @@ namespace Ash::Vulkan
 	{
 	public:
 		VkInstance Handle;
-
 		VkDebugUtilsMessengerEXT DebugMessenger;
 
 	public:
 		Instance();
 
-		// Not copyable or moveable
 		Instance(const Instance&) = delete;
-		void operator=(const Instance&) = delete;
 		Instance(Instance&&) = delete;
+		void operator=(const Instance&) = delete;
 		Instance& operator=(Instance&&) = delete;
 
 		operator VkInstance() const { return Handle; }

@@ -4,10 +4,10 @@
 
 #include "Scene/Scene.h"
 
+#include "Vulkan/Context/Context.h"
+
 namespace Ash::Vulkan
 {
-	class Context;
-
 	class RenderSystem
 	{
 	public:
@@ -27,6 +27,7 @@ namespace Ash::Vulkan
 
 	protected:
 		float m_LastResizeTime = 0.0f;
+		std::shared_ptr<Context> m_Context = nullptr;
 
 	protected:
 		virtual void OnSwapChainRecreation() {}

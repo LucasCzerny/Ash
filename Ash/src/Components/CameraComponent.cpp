@@ -33,9 +33,9 @@ namespace Ash
 
 	glm::mat4 CameraComponent::CalculateProjectionMatrix()
 	{
-		static Vulkan::Context& context = Vulkan::Context::Get();
+		static std::shared_ptr<Vulkan::Context> context = Vulkan::Context::Get();
 
-		glm::vec2 screenSize = context.Window.GetSize();
+		glm::vec2 screenSize = context->Window.GetSize();
 
 		if (screenSize.x == 0)
 		{
