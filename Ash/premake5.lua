@@ -50,7 +50,7 @@ project "Ash"
 		
 	filter "system:linux"
 		systemversion "latest"
-		defines { "ASH_PLATFORM_LINUX }
+		defines { "ASH_PLATFORM_LINUX" }
 		prebuildcommands { "source scripts/CompileAllShaders.sh" }
 
 	filter "configurations:Debug"
