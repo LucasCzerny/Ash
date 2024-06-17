@@ -14,28 +14,14 @@ namespace Ash::Vulkan
 		: m_Context(Context::Get()), Handle(handle), Layout(layout), RenderPass(renderPass), Framebuffers(framebuffers) {}
 
 	Pipeline::Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction)
-		: m_Context(Context::Get()), m_RecordWithoutScene(recordFunction)
-	{
-		CreateGraphicsPipeline(config);
-		CreateFramebuffers();
-	}
-
-	Pipeline::Pipeline(const PipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction)
-		: m_Context(Context::Get()), m_RecordWithScene(recordFunction)
+		: m_Context(Context::Get()), m_Record(recordFunction)
 	{
 		CreateGraphicsPipeline(config);
 		CreateFramebuffers();
 	}
 
 	Pipeline::Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> recordFunction)
-		: m_Context(Context::Get()), m_RecordWithoutScene(recordFunction)
-	{
-		CreateComputePipeline(config);
-		CreateFramebuffers();
-	}
-
-	Pipeline::Pipeline(const ComputePipelineConfig& config, std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> recordFunction)
-		: m_Context(Context::Get()), m_RecordWithScene(recordFunction)
+		: m_Context(Context::Get()), m_Record(recordFunction)
 	{
 		CreateComputePipeline(config);
 		CreateFramebuffers();
@@ -81,20 +67,11 @@ namespace Ash::Vulkan
 		Framebuffers.clear();
 	}
 
-	void Pipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex, Scene& scene) const
+	void Pipeline::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex) const
 	{
-		if (m_RecordWithoutScene != nullptr)
-		{
-			m_RecordWithoutScene(*this, commandBuffer, imageIndex, currentFrame);
-		}
-		else if (m_RecordWithScene != nullptr)
-		{
-			m_RecordWithScene(*this, commandBuffer, currentFrame, imageIndex, scene);
-		}
-		else
-		{
-			ASSERT(false, "A record function needs to be implemented.");
-		}
+        ASSERT(m_Record != nullptr, "The record function needs to be implemented.")
+
+        m_Record(*this, commandBuffer, imageIndex, currentFrame);
 	}
 
 	void Pipeline::CreateGraphicsPipeline(const PipelineConfig& config)

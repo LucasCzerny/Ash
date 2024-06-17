@@ -47,7 +47,7 @@ namespace Ash::Vulkan
 
 	private:
 		void ChooseSwapChainSpecification();
-		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities, VkExtent2D default);
+		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities, VkExtent2D defaultExtent);
 		VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availableModes);
 		VkSurfaceFormatKHR ChooseSwapChainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 

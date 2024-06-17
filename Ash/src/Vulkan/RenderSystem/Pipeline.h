@@ -34,13 +34,12 @@ namespace Ash::Vulkan
 		void Reset();
 		bool IsEmpty() const { return Handle == VK_NULL_HANDLE; }
 
-		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex, Scene& scene = Scene()) const;
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t currentFrame, uint32_t imageIndex) const;
 
 		operator VkPipeline() const { return Handle; }
 
 	private:
-		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> m_RecordWithoutScene = nullptr;
-		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t, Scene&)> m_RecordWithScene = nullptr;
+		std::function<void(const Pipeline&, VkCommandBuffer, uint32_t, uint32_t)> m_Record = nullptr;
 
 		std::shared_ptr<Context> m_Context = nullptr;
 

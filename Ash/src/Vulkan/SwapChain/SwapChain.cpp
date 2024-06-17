@@ -73,14 +73,14 @@ namespace Ash::Vulkan
 		ASSERT(false, "Failed to find an appropiate depth format.");
 	}
 
-	VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR & surfaceCapabilities, VkExtent2D default)
+	VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR & surfaceCapabilities, VkExtent2D defaultExtent)
 	{
 		if (surfaceCapabilities.currentExtent.height != UINT32_MAX)
 		{
 			return surfaceCapabilities.currentExtent;
 		}
 
-		return default;
+		return defaultExtent;
 	}
 
 	VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR>& availableModes)

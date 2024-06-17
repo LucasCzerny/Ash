@@ -46,12 +46,10 @@ project "Ash"
 	filter "system:windows"
 		systemversion "latest"
 		defines { "ASH_PLATFORM_WINDOWS" }
-		prebuildcommands { "..\\scripts\\CompileAllShaders.bat" }
 		
 	filter "system:linux"
 		systemversion "latest"
 		defines { "ASH_PLATFORM_LINUX" }
-		prebuildcommands { "source scripts/CompileAllShaders.sh" }
 
 	filter "configurations:Debug"
 		defines { "ASH_DEBUG" }

@@ -12,7 +12,7 @@ namespace Ash
 	struct ComponentProperty
 	{
 		std::string Name;
-		DataType DataType;
+		DataType Type;
 		void* Data;
 	};
 

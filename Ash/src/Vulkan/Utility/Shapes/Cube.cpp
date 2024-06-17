@@ -6,7 +6,7 @@ namespace Ash::Vulkan::Utility
 	// TODO: add usage flags and memory property flags to the constructor
 	std::array<Buffer, 2> CubeVertex::CreateVertexBuffers()
 	{
-		static std::array<float, 24 * 3> positions = {
+		static const std::array<float, 24 * 3> positions = {
 			-0.5f,  0.5f, -0.5f,
 			-0.5f, -0.5f, -0.5f,
 			 0.5f, -0.5f, -0.5f,
@@ -38,7 +38,7 @@ namespace Ash::Vulkan::Utility
 			-0.5f, -0.5f,  0.5f,
 		};
 
-		static std::array<float, 24 * 2> texCoords = {
+		static const std::array<float, 24 * 2> texCoords = {
 			0.0f, 0.0f,
 			1.0f, 0.0f,
 			1.0f, 1.0f,
@@ -72,22 +72,20 @@ namespace Ash::Vulkan::Utility
 
 		return {
 			Buffer(
-				positions,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+				positions.data(), positions.size(),
+                BufferType::VERTEX
 			),
 
 			Buffer(
-				texCoords,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+				texCoords.data(), texCoords.size(),
+                BufferType::VERTEX
 			)
 		};
 	}
 
 	Buffer CubeVertex::CreateIndexBuffer()
 	{
-		static std::array<uint32_t, 6 * 6> indices = {
+		static const std::array<uint32_t, 6 * 6> indices = {
 			0,  1,  2,  2,  3,  0,
 			4,  5,  6,  6,  7,  4,
 			8,  9,  10, 10, 11, 8,
@@ -97,9 +95,8 @@ namespace Ash::Vulkan::Utility
 		};
 
 		return Buffer(
-			indices,
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			indices.data(), indices.size(),
+			BufferType::INDEX
 		);
 	}
 

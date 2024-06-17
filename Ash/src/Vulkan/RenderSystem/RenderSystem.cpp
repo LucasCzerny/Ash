@@ -26,7 +26,7 @@ namespace Ash::Vulkan
 		}
 	}
 
-	void RenderSystem::DrawScene(Scene& scene)
+	void RenderSystem::Draw()
 	{
 		static const uint32_t maxFramesInFlight = Config::Get().MaxFramesInFlight;
 		static uint32_t currentFrame = 0;
@@ -48,7 +48,7 @@ namespace Ash::Vulkan
 
 		for (const Pipeline& pipeline : m_Pipelines)
 		{
-			pipeline.RecordCommandBuffer(commandBuffer, currentFrame, imageIndex, scene);
+			pipeline.RecordCommandBuffer(commandBuffer, currentFrame, imageIndex);
 		}
 
 		VkResult result = SubmitCommandBuffer(commandBuffer, currentFrame, imageIndex);

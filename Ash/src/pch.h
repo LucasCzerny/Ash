@@ -23,6 +23,8 @@ namespace Ash
 #include <set>
 #include <unordered_set>
 
+#include <signal.h>
+
 // ENTT
 
 #include <entt/entt.hpp>

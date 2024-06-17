@@ -8,7 +8,7 @@ namespace Ash
 
 		for (entt::entity entity : view)
 		{
-			entities.push_back({ entity, this });
+			entities.push_back(Entity(entity, this));
 		}
 
 		return entities;

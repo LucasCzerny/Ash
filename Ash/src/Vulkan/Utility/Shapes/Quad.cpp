@@ -6,14 +6,14 @@ namespace Ash::Vulkan::Utility
 	// TODO: add usage flags and memory property flags to the constructor
 	std::array<Vulkan::Buffer, 2> QuadVertex::CreateVertexBuffers()
 	{
-		static std::array<float, 4 * 2> positions = {
+		static const std::array<float, 4 * 2> positions = {
 			-0.5f, -0.5f,
 			 0.5f, -0.5f,
 			 0.5f,  0.5f,
 			-0.5f,  0.5f,
 		};
 
-		static std::array<float, 4 * 2> texCoords = {
+		static const std::array<float, 4 * 2> texCoords = {
 			 0.0f, 0.0f,
 			 1.0f, 0.0f,
 			 1.0f, 1.0f,
@@ -22,29 +22,26 @@ namespace Ash::Vulkan::Utility
 
 		return {
 			Buffer(
-				positions,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+				positions.data(), positions.size(),
+                BufferType::VERTEX
 			),
 
 			Buffer(
-				texCoords,
-				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+				texCoords.data(), texCoords.size(),
+                BufferType::VERTEX
 			)
 		};
 	}
 
 	Buffer QuadVertex::CreateIndexBuffer()
 	{
-		static std::array<uint32_t, 6> indices = {
+		static const std::array<uint32_t, 6> indices = {
 			0,  1,  2,  2,  3,  0,
 		};
 
 		return Buffer(
-			indices,
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+			indices.data(), indices.size(),
+			BufferType::INDEX
 		);
 	}
 

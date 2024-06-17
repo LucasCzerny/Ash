@@ -16,7 +16,7 @@ namespace Ash::Vulkan
 		RenderSystem(const std::vector<Pipeline>& pipelines);
 		~RenderSystem();
 		
-		void DrawScene(Scene& scene = Scene());
+		void Draw();
 
 	private:
 		std::vector<Pipeline> m_Pipelines;
