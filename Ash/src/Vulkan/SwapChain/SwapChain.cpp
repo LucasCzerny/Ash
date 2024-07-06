@@ -133,6 +133,19 @@ namespace Ash::Vulkan
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 
+		createInfo.surface = m_Window.Surface;
+		createInfo.minImageCount = ImageCount;
+		createInfo.imageFormat = SurfaceFormat.format;
+		createInfo.imageColorSpace = SurfaceFormat.colorSpace;
+		createInfo.imageExtent = m_Window.Extent2D;
+
+		std::array<uint32_t, 2> queueFamilies = { m_Device.GraphicsQueue.Family, m_Device.PresentQueue.Family };
+		createInfo.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
+		createInfo.pQueueFamilyIndices = queueFamilies.data();
+
+		createInfo.preTransform = m_Device.SwapChainSupport.Capabilities.currentTransform;
+		createInfo.presentMode = PresentMode;
+
 		createInfo.oldSwapchain = m_OldSwapChain;
 
 		VkResult result = vkCreateSwapchainKHR(m_Device, &createInfo, nullptr, &Handle);
@@ -149,7 +162,7 @@ namespace Ash::Vulkan
 
 		for (uint32_t i = 0; i < ImageCount; i++)
 		{
-			Images.emplace_back(imageHandles[i], SurfaceFormat.format);
+			Images.emplace_back(imageHandles[i], SurfaceFormat.format, m_Device.Logical);
 		}
 	}
 
@@ -157,7 +170,7 @@ namespace Ash::Vulkan
 	{
 		for (uint32_t i = 0; i < ImageCount; i++)
 		{
-			DepthImages.emplace_back(DepthFormat);
+			DepthImages.emplace_back(DepthFormat, m_Device.Logical, m_Device.Physical);
 		}
 	}
 }

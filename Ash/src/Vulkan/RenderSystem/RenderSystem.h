@@ -26,7 +26,6 @@ namespace Ash::Vulkan
 		std::vector<VkFence> m_InFlightFences;
 
 	protected:
-		float m_LastResizeTime = 0.0f;
 		std::shared_ptr<Context> m_Context = nullptr;
 
 	protected:

@@ -7,7 +7,7 @@ namespace Ash
 {
 	void GlfwErrorCallback(int code, const char* message)
 	{
-		Log::Error("GLFW ERROR\n\tCode:", code, " | Message: ", message);
+		Log::Error("GLFW ERROR\nCode:", code, " | Message: ", message);
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
@@ -17,7 +17,7 @@ namespace Ash
 			return VK_FALSE;
 		}
 
-		Log::Error("VULKAN ERROR\n\t", pCallbackData->pMessage);
+		Log::Error("VULKAN ERROR\n", pCallbackData->pMessage);
 		return VK_TRUE;
 	}
 }

@@ -36,6 +36,7 @@ project "GLFW"
 			"glfw/src/x11_monitor.c",
 			"glfw/src/x11_window.c",
 			"glfw/src/xkb_unicode.c",
+			"glfw/src/posix_poll.c",
 			"glfw/src/posix_time.c",
 			"glfw/src/posix_thread.c",
 			"glfw/src/posix_module.c",

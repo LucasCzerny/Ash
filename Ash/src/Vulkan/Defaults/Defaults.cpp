@@ -83,7 +83,6 @@ namespace Ash::Vulkan
 	template<>
 	VkDeviceCreateInfo Defaults()
 	{
-		static std::shared_ptr<Context> context = Context::Get();
 		static Config& config = Config::Get();
 
 		static VkDeviceCreateInfo info;
@@ -101,11 +100,7 @@ namespace Ash::Vulkan
 		info.enabledExtensionCount = (uint32_t)deviceExtensions.size();
 		info.ppEnabledExtensionNames = deviceExtensions.data();
 
-		static VkPhysicalDeviceFeatures physicalDeviceFeatures;
-		vkGetPhysicalDeviceFeatures(context->Device, &physicalDeviceFeatures);
-		physicalDeviceFeatures.samplerAnisotropy = config.AnisotropicSampling;
-
-		info.pEnabledFeatures = &physicalDeviceFeatures;
+		info.pEnabledFeatures = nullptr; // REQUIRED
 
 		return info;
 	}
@@ -166,6 +161,7 @@ namespace Ash::Vulkan
 		static std::shared_ptr<Context> context = Context::Get();
 
 		static VkImageCreateInfo info;
+
 		info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		info.pNext = nullptr;
 		info.flags = NULL;
@@ -197,9 +193,8 @@ namespace Ash::Vulkan
 	template<>
 	VkImageViewCreateInfo Defaults()
 	{
-		static std::shared_ptr<Context> context = Context::Get();
-
 		static VkImageViewCreateInfo info;
+
 		info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		info.pNext = nullptr;
 		info.flags = NULL;
@@ -280,29 +275,26 @@ namespace Ash::Vulkan
 	template<>
 	VkSwapchainCreateInfoKHR Defaults()
 	{
-		static std::shared_ptr<Context> context = Context::Get();
-
 		static VkSwapchainCreateInfoKHR info;
 
 		info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		info.pNext = nullptr;
 		info.flags = NULL;
-		info.surface = context->Window.Surface;
-		info.minImageCount = context->SwapChain.ImageCount;
-		info.imageFormat = context->SwapChain.SurfaceFormat.format;
-		info.imageColorSpace = context->SwapChain.SurfaceFormat.colorSpace;
-		info.imageExtent = context->Window.Extent2D; // REQUIRED 
+		info.surface = VK_NULL_HANDLE; // REQUIRED 
+		info.minImageCount = 0; // REQUIRED 
+		info.imageFormat = VK_FORMAT_UNDEFINED; // REQUIRED 
+		info.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; // REQUIRED 
+		info.imageExtent = VkExtent2D{ 0, 0 }; // REQUIRED 
 		info.imageArrayLayers = 1;
 		info.imageUsage = VK_IMAGE_USAGE_SAMPLED_BIT; // LIKELY NEEDS TO BE CHANGED
 		info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 
-		std::array<uint32_t, 2> queueFamilies = { context->Device.GraphicsQueue.Family, context->Device.PresentQueue.Family };
-		info.queueFamilyIndexCount = (uint32_t)queueFamilies.size();
-		info.pQueueFamilyIndices = queueFamilies.data();
+		info.queueFamilyIndexCount = 0;
+		info.pQueueFamilyIndices = nullptr;
 
-		info.preTransform = context->Device.SwapChainSupport.Capabilities.currentTransform;
+		info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR; // REQUIRED
 		info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		info.presentMode = context->SwapChain.PresentMode;
+		info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // REQUIRED
 		info.clipped = VK_TRUE;
 		info.oldSwapchain = nullptr; // LIKELY NEEDS TO BE SET
 

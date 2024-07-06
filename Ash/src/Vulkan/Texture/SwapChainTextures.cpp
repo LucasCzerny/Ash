@@ -8,25 +8,22 @@
 
 namespace Ash::Vulkan
 {
-	SwapChainTexture::SwapChainTexture(VkImage image, VkFormat format)
-		: Image(image)
+	SwapChainTexture::SwapChainTexture(VkImage image, VkFormat format, VkDevice device)
+		: Image(image), m_Device(device)	
 	{
-		static std::shared_ptr<Context> context = Context::Get();
-
 		VkImageViewCreateInfo viewInfo = Defaults<VkImageViewCreateInfo>();
 		{
 			viewInfo.image = image;
 			viewInfo.format = format;
 		}
 
-        VkResult result = vkCreateImageView(context->Device, &viewInfo, nullptr, &View);
+        VkResult result = vkCreateImageView(m_Device, &viewInfo, nullptr, &View);
         ASSERT(result == VK_SUCCESS, "Failed to create image view for a swap chain image.");
 	}
 
-	SwapChainDepthTexture::SwapChainDepthTexture(VkFormat depthFormat)
+	SwapChainDepthTexture::SwapChainDepthTexture(VkFormat depthFormat, VkDevice device, VkPhysicalDevice physicalDevice)
+		: m_Device(device), m_PhysicalDevice(physicalDevice)
 	{
-		static std::shared_ptr<Context> context = Context::Get();
-
 		VkImageCreateInfo imageInfo = Defaults<VkImageCreateInfo>();
 		{
 			imageInfo.format = depthFormat;
@@ -39,11 +36,11 @@ namespace Ash::Vulkan
 			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 		}
 
-        VkResult result = vkCreateImage(context->Device, &imageInfo, nullptr, &Image);
+        VkResult result = vkCreateImage(m_Device, &imageInfo, nullptr, &Image);
         ASSERT(result == VK_SUCCESS, "Failed to create an image.");
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(context->Device, Image, &memRequirements);
+        vkGetImageMemoryRequirements(m_Device, Image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo = Defaults<VkMemoryAllocateInfo>();
         {
@@ -51,24 +48,22 @@ namespace Ash::Vulkan
 			allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         }
         
-        result = vkAllocateMemory(context->Device, &allocInfo, nullptr, &Memory);
+        result = vkAllocateMemory(m_Device, &allocInfo, nullptr, &Memory);
         ASSERT(result == VK_SUCCESS, "Failed to allocate image memory.");
 
-        result = vkBindImageMemory(context->Device, Image, Memory, 0);
+        result = vkBindImageMemory(m_Device, Image, Memory, 0);
         ASSERT(result == VK_SUCCESS, "Failed to bind image memory.");
 
 		viewInfo.image = Image;
 
-        result = vkCreateImageView(context->Device, &viewInfo, nullptr, &View);
+        result = vkCreateImageView(m_Device, &viewInfo, nullptr, &View);
         ASSERT(result == VK_SUCCESS, "Failed to create an image view.");
 	}
 
 	uint32_t SwapChainDepthTexture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 	{
-		static std::shared_ptr<Context> context = Context::Get();
-
         VkPhysicalDeviceMemoryProperties memoryProperties{};
-        vkGetPhysicalDeviceMemoryProperties(context->Device, &memoryProperties);
+        vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memoryProperties);
 
         for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
         {

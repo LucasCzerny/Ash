@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Device.h"
 
+#include "Config/Config.h"
+
 #include "Vulkan/Context/Context.h"
 #include "Vulkan/Defaults/Defaults.h"
 
@@ -171,6 +173,12 @@ namespace Ash::Vulkan
         {
 			deviceInfo.queueCreateInfoCount = (uint32_t)queueCreateInfos.size();
 			deviceInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+            static VkPhysicalDeviceFeatures physicalDeviceFeatures;
+            vkGetPhysicalDeviceFeatures(Physical, &physicalDeviceFeatures);
+            physicalDeviceFeatures.samplerAnisotropy = Config::Get().AnisotropicSampling;
+
+            deviceInfo.pEnabledFeatures = &physicalDeviceFeatures;
 
 			VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
 			indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;

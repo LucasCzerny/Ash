@@ -10,7 +10,10 @@ namespace Ash::Vulkan
 
 	public:
 		SwapChainTexture() = default;
-		SwapChainTexture(VkImage image, VkFormat format);
+		SwapChainTexture(VkImage image, VkFormat format, VkDevice device);
+
+	private:
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 
 	class SwapChainDepthTexture
@@ -22,7 +25,11 @@ namespace Ash::Vulkan
 
 	public:
 		SwapChainDepthTexture() = default;
-		SwapChainDepthTexture(VkFormat depthFormat);
+		SwapChainDepthTexture(VkFormat depthFormat, VkDevice device, VkPhysicalDevice physicalDevice);
+
+	private:
+		VkDevice m_Device = VK_NULL_HANDLE;
+		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 
 	private:
 		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
