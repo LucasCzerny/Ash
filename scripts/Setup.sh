@@ -1,4 +1,4 @@
-vendor/premake/premake5 gmake2
+./vendor/premake/premake5 cmake
 
 echo ""
 echo "-----------"

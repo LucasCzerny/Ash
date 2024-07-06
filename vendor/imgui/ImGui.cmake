@@ -1,11 +1,11 @@
 ﻿add_library("ImGui" STATIC
-    "vendor/Ash/Ash/vendor/imgui/imgui/backends/imgui_impl_glfw.cpp"
-    "vendor/Ash/Ash/vendor/imgui/imgui/backends/imgui_impl_vulkan.cpp"
-  "vendor/Ash/Ash/vendor/imgui/imgui/imgui.cpp"
-  "vendor/Ash/Ash/vendor/imgui/imgui/imgui_demo.cpp"
-  "vendor/Ash/Ash/vendor/imgui/imgui/imgui_draw.cpp"
-  "vendor/Ash/Ash/vendor/imgui/imgui/imgui_tables.cpp"
-  "vendor/Ash/Ash/vendor/imgui/imgui/imgui_widgets.cpp"
+    "vendor/imgui/imgui/backends/imgui_impl_glfw.cpp"
+    "vendor/imgui/imgui/backends/imgui_impl_vulkan.cpp"
+  "vendor/imgui/imgui/imgui.cpp"
+  "vendor/imgui/imgui/imgui_demo.cpp"
+  "vendor/imgui/imgui/imgui_draw.cpp"
+  "vendor/imgui/imgui/imgui_tables.cpp"
+  "vendor/imgui/imgui/imgui_widgets.cpp"
 )
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
   add_dependencies("ImGui"
@@ -13,15 +13,15 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
   )
   set_target_properties("ImGui" PROPERTIES
     OUTPUT_NAME "ImGui"
-    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
-    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
-    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
+    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
+    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
+    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Debug-linux-x86_64/ImGui"
   )
 endif()
 target_include_directories("ImGui" PRIVATE
-  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui//Include>
-  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/imgui>
-  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/glfw/glfw/include>
+  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Ash/vendor/imgui//Include>
+  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Ash/vendor/imgui/imgui>
+  $<$<CONFIG:Debug>:/home/lucas/Documents/Code/Ash/vendor/glfw/glfw/include>
 )
 target_compile_definitions("ImGui" PRIVATE
   $<$<CONFIG:Debug>:IMGUI_USE_WCHAR32>
@@ -55,15 +55,15 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
   )
   set_target_properties("ImGui" PROPERTIES
     OUTPUT_NAME "ImGui"
-    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
-    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
-    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
+    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
+    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
+    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Release-linux-x86_64/ImGui"
   )
 endif()
 target_include_directories("ImGui" PRIVATE
-  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui//Include>
-  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/imgui>
-  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/glfw/glfw/include>
+  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Ash/vendor/imgui//Include>
+  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Ash/vendor/imgui/imgui>
+  $<$<CONFIG:Release>:/home/lucas/Documents/Code/Ash/vendor/glfw/glfw/include>
 )
 target_compile_definitions("ImGui" PRIVATE
   $<$<CONFIG:Release>:IMGUI_USE_WCHAR32>
@@ -97,15 +97,15 @@ if(CMAKE_BUILD_TYPE STREQUAL Dist)
   )
   set_target_properties("ImGui" PROPERTIES
     OUTPUT_NAME "ImGui"
-    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
-    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
-    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
+    ARCHIVE_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
+    LIBRARY_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
+    RUNTIME_OUTPUT_DIRECTORY "/home/lucas/Documents/Code/Ash/vendor/imgui/bin/Dist-linux-x86_64/ImGui"
   )
 endif()
 target_include_directories("ImGui" PRIVATE
-  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui//Include>
-  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/imgui/imgui>
-  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Lava/vendor/Ash/Ash/vendor/glfw/glfw/include>
+  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Ash/vendor/imgui//Include>
+  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Ash/vendor/imgui/imgui>
+  $<$<CONFIG:Dist>:/home/lucas/Documents/Code/Ash/vendor/glfw/glfw/include>
 )
 target_compile_definitions("ImGui" PRIVATE
   $<$<CONFIG:Dist>:IMGUI_USE_WCHAR32>

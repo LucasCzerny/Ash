@@ -1,12 +1,12 @@
-Ash_IncludeDir["glfw"] = "../vendor/glfw/glfw/include/"
+IncludeDir["glfw"] = "vendor/glfw/glfw/include/"
 
 project "GLFW"
 	kind "StaticLib"
 	language "C"
 	staticruntime "off"
 
-	targetdir ("bin/" .. Ash_outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. Ash_outputdir .. "/%{prj.name}")
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
